@@ -3,18 +3,22 @@ import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import api from "../../api/api";
 import { AuthContext } from "../../contexts/AuthContext";
+import { useNotification } from "../../contexts/NotificationContext";
 
 function Navbar() {
   const { setUser } = useContext(AuthContext);
+  const { showNotification } = useNotification(); 
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout"); // clear HTTP-only cookie on server
       setUser(null); // clear user from context
+      showNotification("Logged out successfully!", "success"); 
       navigate("/login"); // redirect to login
     } catch (err) {
       console.error("Logout failed:", err);
+      showNotification("Logout failed. Please try again.", "error"); 
     }
   };
 

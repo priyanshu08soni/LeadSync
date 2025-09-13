@@ -23,7 +23,7 @@ export const NotificationProvider = ({ children }) => {
       {children}
       {visible && (
         <div
-          className={`fixed top-5 right-5 px-4 py-2 rounded shadow-lg text-white 
+          className={`fixed top-5 z-50 right-5 px-4 py-2 rounded shadow-lg text-white 
           ${
             type === "success"
               ? "bg-green-500"

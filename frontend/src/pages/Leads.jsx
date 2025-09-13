@@ -6,6 +6,7 @@ import LeadDetailsModal from "../components/Lead/LeadDetailsModel";
 import Pagination from "../components/Lead/Pagination";
 import PageHeader from "../components/Lead/PageHeader";
 import PageSizeSelector from "../components/Lead/PageSizeSelector";
+import { useNotification } from "../contexts/NotificationContext"; 
 
 export default function Leads() {
   const [rowData, setRowData] = useState([]);
@@ -29,6 +30,8 @@ export default function Leads() {
     lead_value: 0,
   });
 
+  const { showNotification } = useNotification(); 
+
   // Fetch leads
   const fetchPage = async (p = 1) => {
     try {
@@ -38,6 +41,7 @@ export default function Leads() {
       setTotalPages(res.data.totalPages);
     } catch (err) {
       console.error(err);
+      showNotification("Failed to load leads", "error");
     }
   };
 
@@ -72,15 +76,17 @@ export default function Leads() {
     try {
       if (editLead) {
         await api.put(`/leads/${editLead._id}`, formData);
+        showNotification("Lead updated successfully!", "success"); 
       } else {
         await api.post("/leads", formData);
+        showNotification("Lead created successfully!", "success"); 
       }
       setShowForm(false);
       resetForm();
       fetchPage(page);
     } catch (err) {
       console.error("Save failed:", err);
-      alert("Failed to save lead");
+      showNotification("Failed to save lead", "error"); 
     }
   };
 
@@ -103,10 +109,11 @@ export default function Leads() {
     if (!window.confirm("Are you sure you want to delete this lead?")) return;
     try {
       await api.delete(`/leads/${id}`);
+      showNotification("Lead deleted successfully!", "success"); 
       fetchPage(page);
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete lead");
+      showNotification("Failed to delete lead", "error"); 
     }
   };
 

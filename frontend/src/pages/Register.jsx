@@ -27,8 +27,8 @@ export default function Register() {
 
       navigate("/leads");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
-      showNotification(err.response?.data?.message || "Registration failed", "error");
+      setError("User Already exist for this email.");
+      showNotification("User Already exist.");
     }
   };
 
