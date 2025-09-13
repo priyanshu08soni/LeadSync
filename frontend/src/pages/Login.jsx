@@ -17,7 +17,7 @@ export default function Login() {
       showNotification("Login successful!", "success");
       navigate("/leads");
     } catch (err) {
-      showNotification(err.response?.data?.message || "Login failed", "error");
+      showNotification(err.response?.data?.message || "User Not Found", "error");
     }
   };
 
