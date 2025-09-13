@@ -2,21 +2,23 @@ import React, { useState, useContext } from "react";
 import api from "../api/api";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-
+import { useNotification } from "../contexts/NotificationContext"
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
-
+  const { showNotification } = useNotification();
   const submit = async (e) => {
     e.preventDefault();
     try {
       const res = await api.post("/auth/login", { email, password });
       setUser(res.data.user);
+      showNotification("Login successful!", "success");
       navigate("/leads");
     } catch (err) {
       alert(err.response?.data?.message || "Login failed");
+      showNotification(err.response?.data?.message || "Login failed", "error");
     }
   };
 

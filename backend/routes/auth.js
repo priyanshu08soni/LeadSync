@@ -7,14 +7,29 @@ function signToken(user){
   return jwt.sign({id:user._id, email:user.email}, process.env.JWT_SECRET, {expiresIn:'7d'});
 }
 
-router.post('/register', async (req,res,next)=>{
-  try{
-    const {email,password,name} = req.body;
-    const user = new User({email,password,name});
+router.post('/register', async (req, res, next) => {
+  try {
+    const { email, password, name } = req.body;
+    const user = new User({ email, password, name });
     await user.save();
-    res.status(201).json({message:'User created'});
-  }catch(err){ next(err); }
+
+    const token = signToken(user);
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.status(201).json({
+      message: 'User created',
+      user: { id: user._id, email: user.email, name: user.name }
+    });
+  } catch (err) {
+    next(err);
+  }
 });
+
 
 router.post('/login', async (req,res,next)=>{
   try{

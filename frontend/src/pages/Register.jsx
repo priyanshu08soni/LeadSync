@@ -2,12 +2,14 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api"; // axios instance
 import { AuthContext } from "../contexts/AuthContext";
+import { useNotification } from "../contexts/NotificationContext"
 
 export default function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState(null);
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,10 +23,12 @@ export default function Register() {
 
       const res = await api.get("/auth/me");
       setUser(res.data.user);
+      showNotification("Registration successful!", "success");
 
       navigate("/leads");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
+      showNotification(err.response?.data?.message || "Registration failed", "error");
     }
   };
 
