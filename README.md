@@ -42,8 +42,8 @@ Before running this application, make sure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
-cd lead-management-system
+git clone https://github.com/priyanshu08soni/LeadSync.git
+cd LeadSync
 ```
 
 ### 2. Backend Setup
@@ -57,7 +57,7 @@ Create a `.env` file in the backend directory:
 
 ```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/lead-management
+MONGODB_URI=mongodb://localhost:27017/lead-manageme
 JWT_SECRET=your-jwt-secret-key
 NODE_ENV=development
 ```
