@@ -17,7 +17,6 @@ export default function Login() {
       showNotification("Login successful!", "success");
       navigate("/leads");
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
       showNotification(err.response?.data?.message || "Login failed", "error");
     }
   };
