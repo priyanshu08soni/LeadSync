@@ -740,11 +740,11 @@ Response: 200 OK
 ![Dashboard](screenshots/dashboard.png)
 *Analytics overview with charts and metrics*
 
-### Leads Management
+### Leads Page
 ![Leads Page](screenshots/lead.png)
 *Advanced filtering and lead listing*
 
-### Lead Details
+### Admin User Management
 ![Admin User Management](screenshots/adminusermanagement.png)
 *Detailed lead information with activity timeline*
 
