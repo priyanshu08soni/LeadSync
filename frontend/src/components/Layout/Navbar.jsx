@@ -54,9 +54,6 @@ function Navbar() {
           className="h-10 cursor-pointer" 
           onClick={() => navigate("/")}
         />
-        <span className="hidden md:block text-gray-800 font-semibold">
-          LeadSync CRM
-        </span>
       </div>
 
       {/* Desktop Links */}
