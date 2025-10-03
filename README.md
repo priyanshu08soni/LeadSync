@@ -735,16 +735,12 @@ Response: 200 OK
 *Analytics overview with charts and metrics*
 
 ### Leads Management
-![Leads Page](screenshots/leads.png)
+![Leads Page](screenshots/Lead's%20Table.png.png)
 *Advanced filtering and lead listing*
 
 ### Lead Details
-![Lead Details](screenshots/lead-details.png)
+![Admin User Management](screenshots/adminusermanagement.png)
 *Detailed lead information with activity timeline*
-
-### Activity Timeline
-![Activities](screenshots/activities.png)
-*Visual timeline of all lead interactions*
 
 ---
 
