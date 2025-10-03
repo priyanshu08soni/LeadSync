@@ -2,10 +2,17 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-  email: {type:String, required:true, unique:true},
-  password: {type:String, required:true},
-  name: String
-}, {timestamps:true});
+  email: {type: String, required: true, unique: true},
+  password: {type: String, required: true},
+  name: String,
+  role: {
+    type: String,
+    enum: ['admin', 'manager', 'sales_rep'],
+    default: 'sales_rep'
+  },
+  team: String, // Optional: for organizing reps into teams
+  isActive: {type: Boolean, default: true}
+}, {timestamps: true});
 
 userSchema.pre('save', async function(next){
   if(!this.isModified('password')) return next();
