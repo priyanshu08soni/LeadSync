@@ -227,8 +227,8 @@ mongod --version  # Should output MongoDB version
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/lead-management-system.git
-cd lead-management-system
+git clone https://github.com/priyanshu08soni/LeadSync.git
+cd LeadSync
 ```
 
 ### 2. Backend Setup
@@ -914,7 +914,7 @@ Contributions are welcome! Please follow these steps:
 
 1. **Fork the repository**
    ```bash
-   gh repo fork yourusername/lead-management-system
+   gh repo fork priyanshu08soni/LeadSync
    ```
 
 2. **Create a feature branch**
