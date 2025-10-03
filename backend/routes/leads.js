@@ -95,7 +95,7 @@ router.get("/", auth, async (req, res, next) => {
 
     const [total, data] = await Promise.all([
       Lead.countDocuments(filter),
-      Lead.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Lead.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).populate("assigned_to", "name email"),
     ]);
 
     res.json({
@@ -111,10 +111,11 @@ router.get("/", auth, async (req, res, next) => {
 });
 
 router.get("/:id", auth, async (req, res, next) => {
-  const lead = await Lead.findById(req.params.id);
+  const lead = await Lead.findById(req.params.id).populate("assigned_to", "name email");
   if (!lead) return res.status(404).json({ message: "Not found" });
   res.json(lead);
 });
+
 
 router.put("/:id", auth, async (req, res, next) => {
   try {

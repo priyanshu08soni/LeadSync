@@ -2,6 +2,7 @@ import React from "react";
 
 export default function LeadForm({
   showForm,
+  salesReps,
   editLead,
   formData,
   onInputChange,
@@ -100,6 +101,21 @@ export default function LeadForm({
             <option value="lost">Lost</option>
             <option value="won">Won</option>
           </select>
+          <select
+            name="assigned_to"
+            value={formData.assigned_to?._id || formData.assigned_to || ""}
+            onChange={onInputChange}
+            className="border rounded p-2 col-span-2"
+            required
+          >
+            <option value="">-- Assign Sales Rep --</option>
+            {salesReps.map((rep) => (
+              <option key={rep._id} value={rep._id}>
+                {rep.name} ({rep.email})
+              </option>
+            ))}
+          </select>
+
           <input
             type="number"
             name="score"

@@ -45,7 +45,16 @@ export default function LeadDetailsModal({ selectedLead, onClose }) {
             <strong>Created At:</strong>{" "}
             {new Date(selectedLead.createdAt).toLocaleString()}
           </p>
+
+          {/* Assigned Sales Rep */}
+          <p>
+            <strong>Assigned To:</strong>{" "}
+            {selectedLead.assigned_to
+              ? `${selectedLead.assigned_to.name} (${selectedLead.assigned_to.email})`
+              : "Not assigned"}
+          </p>
         </div>
+
         <div className="flex justify-end mt-4">
           <button
             onClick={onClose}

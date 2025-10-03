@@ -4,17 +4,31 @@ import { Pencil, Trash2, Eye } from "lucide-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
-export default function LeadsTable({ 
-  rowData, 
-  onView, 
-  onEdit, 
-  onDelete 
-}) {
+export default function LeadsTable({ rowData, onView, onEdit, onDelete }) {
   const columns = [
-    { field: "first_name", flex: 1, minWidth:120 },
+    { field: "first_name", flex: 1, minWidth: 120 },
     { field: "last_name", flex: 1, minWidth: 120 },
     { field: "email", flex: 2, minWidth: 250 },
-    { field: "company", minWidth:80 },
+    { field: "company", minWidth: 80 },
+
+    // Sales Rep Name
+    {
+      field: "assigned_to",
+      headerName: "Sales Rep Name",
+      flex: 1.5,
+      minWidth: 150,
+      valueGetter: (params) => params.data.assigned_to?.name || "Not assigned",
+    },
+
+    // Sales Rep Email
+    {
+      field: "assigned_to_email",
+      headerName: "Sales Rep Email",
+      flex: 2,
+      minWidth: 200,
+      valueGetter: (params) => params.data.assigned_to?.email || "Not assigned",
+    },
+
     { field: "status", maxWidth: 100 },
     { field: "score", maxWidth: 100 },
     { field: "lead_value", headerName: "Value", maxWidth: 120 },
@@ -66,18 +80,22 @@ export default function LeadsTable({
   ];
 
   return (
-    <div className="ag-theme-alpine" style={{ height: 500, width: '100%' }}>
+    <div className="ag-theme-alpine" style={{ height: 500, width: "100%" }}>
       <AgGridReact
         rowData={rowData}
         columnDefs={columns}
         pagination={false}
         suppressMovableColumns={true}
         domLayout="autoHeight"
-        defaultColDef={{ 
-          resizable: true, 
-          sortable: true, 
+        defaultColDef={{
+          resizable: true,
+          sortable: true,
           filter: true,
-          cellStyle: { whiteSpace: 'nowrap', overflow: 'visible', textOverflow: 'clip' }
+          cellStyle: {
+            whiteSpace: "nowrap",
+            overflow: "visible",
+            textOverflow: "clip",
+          },
         }}
         suppressHorizontalScroll={false}
       />

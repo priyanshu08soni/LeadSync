@@ -28,7 +28,24 @@ export default function Leads() {
     status: "new",
     score: 0,
     lead_value: 0,
+    assigned_to: "", // added
   });
+  
+  const [salesReps, setSalesReps] = useState([]);
+
+  useEffect(() => {
+    const fetchSalesReps = async () => {
+      try {
+        const res = await api.get("/auth/users?role=sales_rep"); // fetch all sales reps
+        setSalesReps(res.data.users);
+      } catch (err) {
+        console.error("Failed to load sales reps", err);
+        showNotification("Failed to load sales reps", "error");
+      }
+    };
+
+    fetchSalesReps();
+  }, []);
 
   const { showNotification } = useNotification();
 
@@ -182,6 +199,7 @@ export default function Leads() {
 
       <LeadForm
         showForm={showForm}
+        salesReps={salesReps}
         editLead={editLead}
         formData={formData}
         onInputChange={handleInputChange}

@@ -2,10 +2,16 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api"; // axios instance
 import { AuthContext } from "../contexts/AuthContext";
-import { useNotification } from "../contexts/NotificationContext"
+import { useNotification } from "../contexts/NotificationContext";
 
 export default function Register() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "sales_rep", // default role
+    team: "",
+  });
   const [error, setError] = useState(null);
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -27,18 +33,24 @@ export default function Register() {
 
       navigate("/leads");
     } catch (err) {
-      setError("User Already exist for this email.");
-      showNotification("User Already exist.");
+      setError("User already exists for this email.");
+      showNotification("User already exists.");
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg w-full max-w-md p-8">
-        <h2 className="text-2xl font-bold text-center mb-6">Create Your Account</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">
+          Create Your Account
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="name">
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="name"
+            >
               Full Name
             </label>
             <input
@@ -53,8 +65,12 @@ export default function Register() {
             />
           </div>
 
+          {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="email"
+            >
               Email
             </label>
             <input
@@ -69,8 +85,12 @@ export default function Register() {
             />
           </div>
 
+          {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="password"
+            >
               Password
             </label>
             <input
@@ -81,6 +101,47 @@ export default function Register() {
               onChange={handleChange}
               placeholder="••••••••"
               required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Role Dropdown */}
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="role"
+            >
+              Role
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="admin">Admin</option>
+              <option value="manager">Manager</option>
+              <option value="sales_rep">Sales Rep</option>
+            </select>
+          </div>
+
+          {/* Team */}
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="team"
+            >
+              Team (Optional)
+            </label>
+            <input
+              id="team"
+              name="team"
+              type="text"
+              value={form.team}
+              onChange={handleChange}
+              placeholder="Team name"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -96,7 +157,10 @@ export default function Register() {
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-600">
-          Already have an account? <a href="/login" className="text-blue-600 hover:underline">Login</a>
+          Already have an account?{" "}
+          <a href="/login" className="text-blue-600 hover:underline">
+            Login
+          </a>
         </p>
       </div>
     </div>
