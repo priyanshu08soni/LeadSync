@@ -64,6 +64,11 @@ export default function Login() {
         <p className="mt-4 text-center text-sm text-gray-600">
           Don't have an account? <a href="/register" className="text-blue-600 hover:underline">Sign Up</a>
         </p>
+        <div className="pt-4">
+          <p className="block text-sm font-medium text-gray-700 mb-1">Test Details</p>
+          <p className="block text-sm font-medium text-gray-700 mb-1">priyanshus20k4@gmail.com</p>
+          <p className="block text-sm font-medium text-gray-700 mb-1">1234</p>
+        </div>
       </div>
     </div>
   );
