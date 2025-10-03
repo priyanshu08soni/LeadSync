@@ -3,7 +3,7 @@ const router = express.Router();
 const Lead = require("../models/Lead");
 const auth = require("../middleware/auth");
 const { sendEmail } = require("../config/email");
-
+const Team = require("../models/Team");
 function buildFilter(q) {
   const filter = {};
 
@@ -93,22 +93,23 @@ router.get("/", auth, async (req, res, next) => {
     let filter = buildFilter(req.query);
 
     if (req.user.role === "sales_rep") {
-      // Sales reps only see their leads
+      // Sales reps only see their own leads
       filter.assigned_to = req.user._id;
     } else if (req.user.role === "manager") {
-      // Manager can only see leads of their team members
+      // Manager sees leads assigned to sales reps in their team
       const team = await Team.findOne({ manager: req.user._id }).populate(
         "sales_reps",
         "_id"
       );
-      if (team) {
-        const repIds = team.sales_reps.map((rep) => rep._id);
-        filter.assigned_to = { $in: repIds };
-      } else {
-        filter.assigned_to = null; // manager without team → no leads
+
+      if (!team || !team.sales_reps.length) {
+        return res.json({ data: [], page, limit, total: 0, totalPages: 0 });
       }
+
+      const repIds = team.sales_reps.map((rep) => rep._id);
+      filter.assigned_to = { $in: repIds };
     }
-    // Admin → sees everything
+    // Admin sees everything → no additional filter
 
     const [total, data] = await Promise.all([
       Lead.countDocuments(filter),
