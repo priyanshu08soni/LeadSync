@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import api from "../api/api";
 import LeadsTable from "../components/Lead/LeadsTable";
 import LeadForm from "../components/Lead/LeadForm";
@@ -7,6 +7,7 @@ import Pagination from "../components/Lead/Pagination";
 import PageHeader from "../components/Lead/PageHeader";
 import PageSizeSelector from "../components/Lead/PageSizeSelector";
 import { useNotification } from "../contexts/NotificationContext";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function Leads() {
   const [rowData, setRowData] = useState([]);
@@ -32,6 +33,8 @@ export default function Leads() {
   });
   
   const [salesReps, setSalesReps] = useState([]);
+  const {user : currentUser} = useContext(AuthContext)
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     const fetchSalesReps = async () => {
@@ -47,7 +50,6 @@ export default function Leads() {
     fetchSalesReps();
   }, []);
 
-  const { showNotification } = useNotification();
 
   // Fetch leads
   const fetchPage = async (p = 1) => {
@@ -88,20 +90,7 @@ export default function Leads() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const [currentUser, setCurrentUser] = useState(null);
 
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        const res = await api.get("/auth/me"); // adjust path if different
-        setCurrentUser(res.data.user);
-      } catch (err) {
-        console.error("Failed to fetch user", err);
-      }
-    };
-
-    fetchCurrentUser();
-  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
 

@@ -4,7 +4,6 @@ const router = express.Router();
 const Lead = require('../models/Lead');
 const Activity = require('../models/Activity');
 const auth = require('../middleware/auth');
-const checkRole = require('../middleware/roles');
 
 // Overview stats
 router.get('/overview', auth, async (req, res, next) => {
