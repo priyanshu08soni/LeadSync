@@ -9,6 +9,12 @@ A comprehensive, full-stack **Customer Relationship Management (CRM)** system de
 
 ---
 
+![Home Page](screenshots/hero.png)
+
+---
+
+---
+
 ## 📋 Table of Contents
 
 - [Features](#-features)
@@ -735,7 +741,7 @@ Response: 200 OK
 *Analytics overview with charts and metrics*
 
 ### Leads Management
-![Leads Page](screenshots/Lead's%20Table.png.png)
+![Leads Page](screenshots/lead.png)
 *Advanced filtering and lead listing*
 
 ### Lead Details
