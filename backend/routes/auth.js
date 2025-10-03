@@ -3,13 +3,17 @@ const router = express.Router();
 const User = require("../models/User");
 const Team = require("../models/Team");
 const jwt = require("jsonwebtoken");
-const auth = require("../middleware/auth"); // make sure you have this
+const auth = require("../middleware/auth");
 
 function signToken(user) {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+  return jwt.sign(
+    { id: user._id, email: user.email }, 
+    process.env.JWT_SECRET, 
+    { expiresIn: "7d" }
+  );
 }
+
+// Register
 router.post("/register", async (req, res, next) => {
   try {
     const { name, email, password, role, team } = req.body;
@@ -18,7 +22,6 @@ router.post("/register", async (req, res, next) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Check duplicate
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
@@ -31,11 +34,11 @@ router.post("/register", async (req, res, next) => {
           .status(400)
           .json({ message: "Team name required for manager" });
 
-      // Check if a team with this name already exists
       const existingTeam = await Team.findOne({ name: team });
       if (existingTeam) {
         return res.status(400).json({ message: "Team name already exists" });
       }
+      
       const newTeam = new Team({
         name: team,
         manager: user._id,
@@ -61,21 +64,25 @@ router.post("/register", async (req, res, next) => {
 
     await user.save();
 
-    // Sign token and set cookie immediately
     const token = signToken(user);
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
-    res.status(201).json({ user });
+    
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    
+    res.status(201).json({ user: userResponse });
   } catch (err) {
     next(err);
   }
 });
 
+// Login
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -88,64 +95,59 @@ router.post("/login", async (req, res, next) => {
     const token = signToken(user);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // true on prod (HTTPS), false on localhost
+      secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
 
     res.json({
       message: "Logged in",
-      user: { id: user._id, email: user.email, name: user.name },
+      user: { 
+        id: user._id, 
+        email: user.email, 
+        name: user.name,
+        role: user.role,
+        team: user.team
+      },
     });
   } catch (err) {
     next(err);
   }
 });
 
-router.get("/me", async (req, res, next) => {
+// Get current user
+router.get("/me", auth, async (req, res, next) => {
   try {
-    const token = req.cookies.token;
-    if (!token) return res.status(401).json({ message: "Unauthorized" });
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await require("../models/User")
-      .findById(payload.id)
-      .select("-password");
-    if (!user) return res.status(401).json({ message: "Unauthorized" });
-    res.json({ user });
+    res.json({ user: req.user });
   } catch (err) {
-    res.status(401).json({ message: "Unauthorized" });
+    next(err);
   }
 });
 
+// Logout
 router.post("/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     secure: process.env.NODE_ENV === "production",
+    path: "/",
   });
   res.json({ message: "Logged out" });
 });
-// GET /users?role=sales
-router.get("/users", async (req, res, next) => {
+
+// Get users (admin/manager only)
+router.get("/users", auth, async (req, res, next) => {
   try {
-    const token = req.cookies.token;
-    if (!token) return res.status(401).json({ message: "Unauthorized" });
-
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const currentUser = await User.findById(payload.id);
-    if (!currentUser) return res.status(401).json({ message: "Unauthorized" });
-
-    // Optional: restrict to admins/managers only
-    if (!["admin", "manager"].includes(currentUser.role)) {
+    if (!["admin", "manager"].includes(req.user.role)) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    const { role } = req.query; // e.g., role=sales_rep
+    const { role } = req.query;
     const query = { isActive: true };
     if (role) query.role = role;
 
-    const users = await User.find(query).select("-password"); // exclude password
+    const users = await User.find(query).select("-password");
     res.json({ users });
   } catch (err) {
     next(err);

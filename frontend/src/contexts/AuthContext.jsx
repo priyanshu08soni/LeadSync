@@ -12,7 +12,8 @@ export const AuthProvider = ({ children }) => {
       try {
         const res = await api.get("/auth/me");
         setUser(res.data.user);
-      } catch {
+      } catch (err) {
+        console.error("Failed to fetch user:", err);
         setUser(null);
       } finally {
         setLoading(false);
@@ -22,12 +23,8 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  if (loading) {
-    return <div className="text-center mt-10">Loading...</div>; // or a spinner
-  }
-
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, loading }}>
       {children}
     </AuthContext.Provider>
   );

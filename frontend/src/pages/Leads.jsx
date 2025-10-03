@@ -17,6 +17,7 @@ export default function Leads() {
   const [showForm, setShowForm] = useState(false);
   const [editLead, setEditLead] = useState(null);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -29,44 +30,51 @@ export default function Leads() {
     status: "new",
     score: 0,
     lead_value: 0,
-    assigned_to: "", // added
+    assigned_to: "",
   });
   
   const [salesReps, setSalesReps] = useState([]);
-  const {user : currentUser} = useContext(AuthContext)
+  const { user: currentUser, loading: authLoading } = useContext(AuthContext);
   const { showNotification } = useNotification();
 
+  // Fetch sales reps
   useEffect(() => {
     const fetchSalesReps = async () => {
       try {
-        const res = await api.get("/auth/users?role=sales_rep"); // fetch all sales reps
-        setSalesReps(res.data.users);
+        const res = await api.get("/auth/users?role=sales_rep");
+        setSalesReps(res.data.users || []);
       } catch (err) {
         console.error("Failed to load sales reps", err);
         showNotification("Failed to load sales reps", "error");
       }
     };
 
-    fetchSalesReps();
-  }, []);
-
+    if (currentUser && (currentUser.role === "admin" || currentUser.role === "manager")) {
+      fetchSalesReps();
+    }
+  }, [currentUser]);
 
   // Fetch leads
   const fetchPage = async (p = 1) => {
+    setLoading(true);
     try {
       const res = await api.get("/leads", { params: { page: p, limit } });
-      setRowData(res.data.data);
-      setPage(res.data.page);
-      setTotalPages(res.data.totalPages);
+      setRowData(res.data.data || []);
+      setPage(res.data.page || 1);
+      setTotalPages(res.data.totalPages || 1);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch leads:", err);
       showNotification("Failed to load leads", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPage(page);
-  }, [page, limit]);
+    if (!authLoading && currentUser) {
+      fetchPage(page);
+    }
+  }, [page, limit, authLoading, currentUser]);
 
   const resetForm = () => {
     setFormData({
@@ -81,6 +89,7 @@ export default function Leads() {
       status: "new",
       score: 0,
       lead_value: 0,
+      assigned_to: "",
     });
     setEditLead(null);
   };
@@ -89,7 +98,6 @@ export default function Leads() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,7 +110,7 @@ export default function Leads() {
     try {
       const payload = {
         ...formData,
-        updated_by: currentUser._id, // pass current logged-in user id
+        updated_by: currentUser._id,
       };
 
       if (editLead) {
@@ -118,7 +126,8 @@ export default function Leads() {
       fetchPage(page);
     } catch (err) {
       console.error("Save failed:", err);
-      showNotification("Failed to save lead", "error");
+      const errorMsg = err.response?.data?.message || "Failed to save lead";
+      showNotification(errorMsg, "error");
     }
   };
 
@@ -132,7 +141,10 @@ export default function Leads() {
   };
 
   const handleEdit = (lead) => {
-    setFormData(lead);
+    setFormData({
+      ...lead,
+      assigned_to: lead.assigned_to?._id || lead.assigned_to || "",
+    });
     setEditLead(lead);
     setShowForm(true);
   };
@@ -167,19 +179,33 @@ export default function Leads() {
     setSelectedLead(null);
   };
 
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       <PageHeader onCreateClick={handleCreateClick} />
 
       <PageSizeSelector limit={limit} onLimitChange={handleLimitChange} />
 
-      <LeadsTable
-        rowData={rowData}
-        onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        currentUser={currentUser}
-      />
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+        </div>
+      ) : (
+        <LeadsTable
+          rowData={rowData}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          currentUser={currentUser}
+        />
+      )}
 
       <Pagination
         page={page}
