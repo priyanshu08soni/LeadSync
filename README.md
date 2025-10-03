@@ -988,12 +988,12 @@ SOFTWARE.
 
 **Project Maintainer:** Priyanshu Soni
 
-- 📧 Email: priyanshus204@gmail.com
+- 📧 Email: priyanshus20k4@gmail.com
 - 📱 Phone: +91 8000643228
 - 🌐 Website: [https://priyanshu-soni.vercel.app](https://priyanshu-soni.vercel.app)
-- 💼 GitHub: [@priyanshusoni](https://github.com/priyanshusoni)
+- 💼 GitHub: [@priyanshusoni](https://github.com/priyanshu08soni)
 
-**Project Link:** [https://github.com/yourusername/lead-management-system](https://github.com/yourusername/lead-management-system)
+**Project Link:** [https://github.com/priyanshu08soni/LeadSync](https://github.com/priyanshu08soni/LeadSync)
 
 ---
 
