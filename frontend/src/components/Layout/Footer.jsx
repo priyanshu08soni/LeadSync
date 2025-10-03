@@ -12,7 +12,7 @@ function Footer() {
 
         {/* Right side: contact info */}
         <div className="text-sm text-center flex flex-col md:text-right ">
-          <a className="hover:text-blue-500" href="mailto:priyanshus20k4@gmail.com">📧 Email: priyanshus204@gmail.com</a>
+          <a className="hover:text-blue-500" href="mailto:priyanshus20k4@gmail.com">📧 Email: priyanshus20k4@gmail.com</a>
           <a className="hover:text-blue-500" href="tel:+918000643228">📞 Phone: +91 8000643228</a>
           <a className="hover:text-blue-500" href="https://priyanshu-soni.vercel.app/">🌐 Website: https://priyanshu-soni.vercel.app</a>
         </div>

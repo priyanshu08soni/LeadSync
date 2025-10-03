@@ -21,7 +21,7 @@ function Home() {
             filtering, and analyzing. Boost your sales pipeline 🚀
           </p>
           <button className="bg-white text-blue-600 font-semibold px-8 py-3 rounded-xl shadow-lg hover:bg-gray-100 transition transform hover:scale-105">
-            Get Started
+            <a href="/dashboard">Get Started</a>
           </button>
         </div>
       </section>

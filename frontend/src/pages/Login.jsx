@@ -15,7 +15,7 @@ export default function Login() {
       const res = await api.post("/auth/login", { email, password });
       setUser(res.data.user);
       showNotification("Login successful!", "success");
-      navigate("/leads");
+      navigate("/");
     } catch (err) {
       showNotification(err.response?.data?.message || "User Not Found", "error");
     }
