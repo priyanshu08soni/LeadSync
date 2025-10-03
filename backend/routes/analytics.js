@@ -7,7 +7,7 @@ const auth = require('../middleware/auth');
 const checkRole = require('../middleware/roles');
 
 // Overview stats
-router.get('/overview', auth, checkRole('admin', 'manager'), async (req, res, next) => {
+router.get('/overview', auth, async (req, res, next) => {
   try {
     const { startDate, endDate, userId } = req.query;
     
@@ -89,7 +89,7 @@ router.get('/overview', auth, checkRole('admin', 'manager'), async (req, res, ne
 });
 
 // Sales funnel visualization data
-router.get('/funnel', auth, checkRole('admin', 'manager'), async (req, res, next) => {
+router.get('/funnel', auth, async (req, res, next) => {
   try {
     const funnel = await Lead.aggregate([
       {
@@ -107,7 +107,7 @@ router.get('/funnel', auth, checkRole('admin', 'manager'), async (req, res, next
 });
 
 // Performance by sales rep
-router.get('/sales-rep-performance', auth, checkRole('admin', 'manager'), async (req, res, next) => {
+router.get('/sales-rep-performance', auth, async (req, res, next) => {
   try {
     const performance = await Lead.aggregate([
       { $match: { assigned_to: { $exists: true, $ne: null } } },

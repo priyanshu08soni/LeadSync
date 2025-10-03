@@ -37,6 +37,9 @@ function Navbar() {
         <li className="hover:text-blue-400 cursor-pointer">
           <a href="/leads">Leads</a>
         </li>
+        <li className="hover:text-blue-400 cursor-pointer">
+          <a href="/dashboard">Dashboard</a>
+        </li>
       </ul>
 
       {/* Logout Button */}

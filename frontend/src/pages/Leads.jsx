@@ -6,7 +6,7 @@ import LeadDetailsModal from "../components/Lead/LeadDetailsModel";
 import Pagination from "../components/Lead/Pagination";
 import PageHeader from "../components/Lead/PageHeader";
 import PageSizeSelector from "../components/Lead/PageSizeSelector";
-import { useNotification } from "../contexts/NotificationContext"; 
+import { useNotification } from "../contexts/NotificationContext";
 
 export default function Leads() {
   const [rowData, setRowData] = useState([]);
@@ -30,7 +30,7 @@ export default function Leads() {
     lead_value: 0,
   });
 
-  const { showNotification } = useNotification(); 
+  const { showNotification } = useNotification();
 
   // Fetch leads
   const fetchPage = async (p = 1) => {
@@ -71,22 +71,48 @@ export default function Leads() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await api.get("/auth/me"); // adjust path if different
+        setCurrentUser(res.data.user);
+      } catch (err) {
+        console.error("Failed to fetch user", err);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!currentUser) {
+      showNotification("User not loaded. Please try again.", "error");
+      return;
+    }
+
     try {
+      const payload = {
+        ...formData,
+        updated_by: currentUser._id, // pass current logged-in user id
+      };
+
       if (editLead) {
-        await api.put(`/leads/${editLead._id}`, formData);
-        showNotification("Lead updated successfully!", "success"); 
+        await api.put(`/leads/${editLead._id}`, payload);
+        showNotification("Lead updated successfully!", "success");
       } else {
-        await api.post("/leads", formData);
-        showNotification("Lead created successfully!", "success"); 
+        await api.post("/leads", payload);
+        showNotification("Lead created successfully!", "success");
       }
+
       setShowForm(false);
       resetForm();
       fetchPage(page);
     } catch (err) {
       console.error("Save failed:", err);
-      showNotification("Failed to save lead", "error"); 
+      showNotification("Failed to save lead", "error");
     }
   };
 
@@ -109,11 +135,11 @@ export default function Leads() {
     if (!window.confirm("Are you sure you want to delete this lead?")) return;
     try {
       await api.delete(`/leads/${id}`);
-      showNotification("Lead deleted successfully!", "success"); 
+      showNotification("Lead deleted successfully!", "success");
       fetchPage(page);
     } catch (err) {
       console.error("Delete failed:", err);
-      showNotification("Failed to delete lead", "error"); 
+      showNotification("Failed to delete lead", "error");
     }
   };
 

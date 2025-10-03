@@ -7,7 +7,7 @@ import Leads from "./pages/Leads";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/Route/ProtectedRoute";
-
+import Dashboard from "./pages/Dashboard";
 import { NotificationProvider } from "./contexts/NotificationContext"; // import provider
 
 function App() {
@@ -26,6 +26,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Home />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Dashboard/>
                 </Layout>
               </ProtectedRoute>
             }
