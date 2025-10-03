@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
 
@@ -9,8 +9,11 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./components/Route/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import { NotificationProvider } from "./contexts/NotificationContext"; // import provider
+import { AuthContext } from "./contexts/AuthContext";
+import Users from "./pages/Users";
 
 function App() {
+  const {user : currentUser} = useContext(AuthContext);
   return (
     <NotificationProvider>
       <Router>
@@ -46,6 +49,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Leads />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Users />
                 </Layout>
               </ProtectedRoute>
             }

@@ -92,24 +92,22 @@ router.get("/", auth, async (req, res, next) => {
 
     let filter = buildFilter(req.query);
 
-    if (req.user.role === "sales_rep") {
-      // Sales reps only see their own leads
-      filter.assigned_to = req.user._id;
-    } else if (req.user.role === "manager") {
-      // Manager sees leads assigned to sales reps in their team
-      const team = await Team.findOne({ manager: req.user._id }).populate(
-        "sales_reps",
-        "_id"
-      );
-
-      if (!team || !team.sales_reps.length) {
+    if (req.user.role !== "admin") {
+      // Manager or Sales Rep → find their team
+      const team = await Team.findById(req.user.team).populate("sales_reps", "_id manager");
+      if (!team) {
         return res.json({ data: [], page, limit, total: 0, totalPages: 0 });
       }
 
-      const repIds = team.sales_reps.map((rep) => rep._id);
-      filter.assigned_to = { $in: repIds };
+      // Collect all user IDs in this team (sales reps + manager)
+      const teamUserIds = [
+        team.manager,
+        ...team.sales_reps.map((rep) => rep._id),
+      ];
+
+      filter.assigned_to = { $in: teamUserIds };
     }
-    // Admin sees everything → no additional filter
+    // Admin → no filter (sees everything)
 
     const [total, data] = await Promise.all([
       Lead.countDocuments(filter),
@@ -117,7 +115,7 @@ router.get("/", auth, async (req, res, next) => {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate("assigned_to", "name email"),
+        .populate("assigned_to", "name email role team"),
     ]);
 
     res.json({
@@ -131,6 +129,8 @@ router.get("/", auth, async (req, res, next) => {
     next(err);
   }
 });
+
+
 
 router.get("/:id", auth, async (req, res, next) => {
   const lead = await Lead.findById(req.params.id).populate(
