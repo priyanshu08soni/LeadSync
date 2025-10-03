@@ -4,7 +4,17 @@ import { Pencil, Trash2, Eye } from "lucide-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
-export default function LeadsTable({ rowData, onView, onEdit, onDelete }) {
+export default function LeadsTable({
+  rowData,
+  onView,
+  onEdit,
+  onDelete,
+  currentUser,
+}) {
+  const isAdmin = currentUser?.role === "admin";
+  const isManager = currentUser?.role === "manager";
+  const isSalesRep = currentUser?.role === "sales_rep";
+
   const columns = [
     { field: "first_name", flex: 1, minWidth: 120 },
     { field: "last_name", flex: 1, minWidth: 120 },
@@ -47,12 +57,15 @@ export default function LeadsTable({ rowData, onView, onEdit, onDelete }) {
           : "",
       minWidth: 180,
     },
+
+    // Actions column
     {
       headerName: "Actions",
       pinned: "right",
       maxWidth: 150,
       cellRenderer: (params) => (
         <div className="flex w-full h-full py-[7px] justify-center gap-2">
+          {/* View button */}
           <button
             onClick={() => onView(params.data)}
             className="p-1 bg-blue-100 hover:bg-blue-200 rounded"
@@ -60,20 +73,33 @@ export default function LeadsTable({ rowData, onView, onEdit, onDelete }) {
           >
             <Eye size={18} className="text-blue-600" />
           </button>
-          <button
-            onClick={() => onEdit(params.data)}
-            className="p-1 bg-yellow-100 hover:bg-yellow-200 rounded"
-            title="Edit"
-          >
-            <Pencil size={18} className="text-yellow-600" />
-          </button>
-          <button
-            onClick={() => onDelete(params.data._id)}
-            className="p-1 bg-red-100 hover:bg-red-200 rounded"
-            title="Delete"
-          >
-            <Trash2 size={18} className="text-red-600" />
-          </button>
+
+          {/* Edit button: 
+              - Admin/Manager can edit all leads
+              - SalesRep can only edit if assigned to them */}
+          {(isAdmin ||
+            isManager ||
+            (isSalesRep &&
+              params.data.assigned_to?._id === currentUser._id)) && (
+            <button
+              onClick={() => onEdit(params.data)}
+              className="p-1 bg-yellow-100 hover:bg-yellow-200 rounded"
+              title="Edit"
+            >
+              <Pencil size={18} className="text-yellow-600" />
+            </button>
+          )}
+
+          {/* Delete button: Only Admin & Manager can delete */}
+          {(isAdmin || isManager) && (
+            <button
+              onClick={() => onDelete(params.data._id)}
+              className="p-1 bg-red-100 hover:bg-red-200 rounded"
+              title="Delete"
+            >
+              <Trash2 size={18} className="text-red-600" />
+            </button>
+          )}
         </div>
       ),
     },

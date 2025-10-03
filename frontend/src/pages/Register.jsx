@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api"; // axios instance
 import { AuthContext } from "../contexts/AuthContext";
@@ -12,10 +12,24 @@ export default function Register() {
     role: "sales_rep", // default role
     team: "",
   });
+  const [teams, setTeams] = useState([]); // for listing existing teams
   const [error, setError] = useState(null);
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const { showNotification } = useNotification();
+
+  // Fetch teams when registering a Sales Rep
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const res = await api.get("/teams"); // backend route: get all teams
+        setTeams(res.data);
+      } catch (err) {
+        console.error("Failed to fetch teams", err);
+      }
+    };
+    if (form.role === "sales_rep") fetchTeams();
+  }, [form.role]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,20 +38,23 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+  
     try {
-      await api.post("/auth/register", form);
-
+      await api.post("/auth/register", form); // send { name, email, password, role, team }
+  
       const res = await api.get("/auth/me");
       setUser(res.data.user);
       showNotification("Registration successful!", "success");
-
       navigate("/leads");
     } catch (err) {
-      setError("User already exists for this email.");
-      showNotification("User already exists.");
+      console.error("Registration failed:", err);
+      setError(err.response?.data?.message || "Registration failed");
+      showNotification("Registration failed.", "error");
     }
   };
-
+  
+  
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg w-full max-w-md p-8">
@@ -47,104 +64,108 @@ export default function Register() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Full Name */}
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="name"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Full Name
             </label>
             <input
-              id="name"
               name="name"
               type="text"
               value={form.name}
               onChange={handleChange}
               placeholder="John Doe"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Email */}
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="email"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
-              id="email"
               name="email"
               type="email"
               value={form.email}
               onChange={handleChange}
               placeholder="you@example.com"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Password */}
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="password"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <input
-              id="password"
               name="password"
               type="password"
               value={form.password}
               onChange={handleChange}
               placeholder="••••••••"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* Role Dropdown */}
+          {/* Role Dropdown (No Admin option) */}
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="role"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Role
             </label>
             <select
-              id="role"
               name="role"
               value={form.role}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             >
-              <option value="admin">Admin</option>
               <option value="manager">Manager</option>
               <option value="sales_rep">Sales Rep</option>
             </select>
           </div>
 
-          {/* Team */}
-          <div>
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="team"
-            >
-              Team (Optional)
-            </label>
-            <input
-              id="team"
-              name="team"
-              type="text"
-              value={form.team}
-              onChange={handleChange}
-              placeholder="Team name"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          {/* Team Field (Conditional Rendering) */}
+          {form.role === "manager" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Create Team
+              </label>
+              <input
+                name="team"
+                type="text"
+                value={form.team}
+                onChange={handleChange}
+                placeholder="Enter team name"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          )}
+
+          {form.role === "sales_rep" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Select Team
+              </label>
+              <select
+                name="team"
+                value={form.team}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">-- Select a Team --</option>
+                {teams && teams?.map((team) => (
+                  <option key={team._id} value={team._id}>
+                    {team?.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
 

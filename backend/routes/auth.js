@@ -1,54 +1,77 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+const Team = require("../models/Team");
 const jwt = require("jsonwebtoken");
+const auth = require("../middleware/auth"); // make sure you have this
 
 function signToken(user) {
   return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
 }
-
 router.post("/register", async (req, res, next) => {
   try {
-    const { email, password, name, role, team } = req.body;
+    const { name, email, password, role, team } = req.body;
 
-    // Optional: enforce that only admins can create admin/manager users
-    // For now, anyone registering will default to 'sales_rep' if role is not provided
-    const user = new User({
-      email,
-      password,
-      name,
-      role: role || "sales_rep",
-      team: team || null,
-    });
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Check duplicate
+    const existingUser = await User.findOne({ email });
+    if (existingUser)
+      return res.status(400).json({ message: "User already exists" });
+
+    const user = new User({ name, email, password, role });
+
+    if (role === "manager") {
+      if (!team)
+        return res
+          .status(400)
+          .json({ message: "Team name required for manager" });
+
+      // Check if a team with this name already exists
+      const existingTeam = await Team.findOne({ name: team });
+      if (existingTeam) {
+        return res.status(400).json({ message: "Team name already exists" });
+      }
+      const newTeam = new Team({
+        name: team,
+        manager: user._id,
+        sales_reps: [],
+      });
+
+      await newTeam.save();
+      user.team = newTeam._id;
+    }
+
+    if (role === "sales_rep") {
+      if (!team)
+        return res.status(400).json({ message: "Team required for sales rep" });
+
+      const existingTeam = await Team.findById(team);
+      if (!existingTeam)
+        return res.status(400).json({ message: "Invalid team selected" });
+
+      user.team = existingTeam._id;
+      existingTeam.sales_reps.push(user._id);
+      await existingTeam.save();
+    }
 
     await user.save();
 
+    // Sign token and set cookie immediately
     const token = signToken(user);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // true on prod (HTTPS)
+      secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: "/",
     });
-
-    res.status(201).json({
-      message: "User created",
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        team: user.team,
-      },
-    });
+    res.status(201).json({ user });
   } catch (err) {
-    // Handle duplicate email error
-    if (err.code === 11000) {
-      return res.status(400).json({ message: "Email already exists" });
-    }
     next(err);
   }
 });

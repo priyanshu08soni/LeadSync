@@ -19,10 +19,6 @@ const leadSchema = new mongoose.Schema({
     ref: 'User',
     default: null
   },
-  assigned_at: {
-    type: Date,
-    default: null
-  }
 }, {timestamps:true});
 
 leadSchema.pre('findOneAndUpdate', async function(next) {

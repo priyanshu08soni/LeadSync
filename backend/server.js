@@ -5,6 +5,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const leadRoutes = require('./routes/leads');
+const teamRoutes = require('./routes/teams');
 const analyticsRoutes = require('./routes/analytics');
 const activitiesRoutes = require('./routes/activities');
 connectDB();
@@ -23,6 +24,7 @@ app.use(cors({
 
 app.use('/api/auth', authRoutes);
 app.use('/api/leads', leadRoutes);
+app.use('/api/teams', teamRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/activities', activitiesRoutes);
 

@@ -189,6 +189,7 @@ export default function Leads() {
         onView={handleView}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        currentUser={currentUser}
       />
 
       <Pagination

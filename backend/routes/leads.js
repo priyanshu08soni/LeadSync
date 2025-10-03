@@ -74,8 +74,6 @@ function buildFilter(q) {
   return filter;
 }
 
-
-
 router.post("/", auth, async (req, res, next) => {
   try {
     const lead = new Lead(req.body);
@@ -91,11 +89,34 @@ router.get("/", auth, async (req, res, next) => {
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Number(req.query.limit) || 10);
     const skip = (page - 1) * limit;
-    const filter = buildFilter(req.query);
+
+    let filter = buildFilter(req.query);
+
+    if (req.user.role === "sales_rep") {
+      // Sales reps only see their leads
+      filter.assigned_to = req.user._id;
+    } else if (req.user.role === "manager") {
+      // Manager can only see leads of their team members
+      const team = await Team.findOne({ manager: req.user._id }).populate(
+        "sales_reps",
+        "_id"
+      );
+      if (team) {
+        const repIds = team.sales_reps.map((rep) => rep._id);
+        filter.assigned_to = { $in: repIds };
+      } else {
+        filter.assigned_to = null; // manager without team → no leads
+      }
+    }
+    // Admin → sees everything
 
     const [total, data] = await Promise.all([
       Lead.countDocuments(filter),
-      Lead.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).populate("assigned_to", "name email"),
+      Lead.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("assigned_to", "name email"),
     ]);
 
     res.json({
@@ -111,19 +132,49 @@ router.get("/", auth, async (req, res, next) => {
 });
 
 router.get("/:id", auth, async (req, res, next) => {
-  const lead = await Lead.findById(req.params.id).populate("assigned_to", "name email");
+  const lead = await Lead.findById(req.params.id).populate(
+    "assigned_to",
+    "name email"
+  );
   if (!lead) return res.status(404).json({ message: "Not found" });
   res.json(lead);
 });
 
-
 router.put("/:id", auth, async (req, res, next) => {
   try {
-    const lead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    let lead = await Lead.findById(req.params.id);
     if (!lead) return res.status(404).json({ message: "Not found" });
+
+    // Role-based rules
+    if (req.user.role === "sales_rep") {
+      // Sales rep can only update their own leads
+      if (lead.assigned_to.toString() !== req.user._id.toString()) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized to edit this lead" });
+      }
+
+      // Prevent sales rep from reassigning lead
+      delete req.body.assigned_to;
+    }
+
+    if (req.user.role === "manager") {
+      // Manager can only update leads of their team
+      // Assuming Lead has a "manager" field or sales rep has "manager" reference
+      // Example check: (pseudo logic, adjust as per your schema)
+      if (String(lead.manager) !== String(req.user._id)) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized to edit this lead" });
+      }
+    }
+
+    // Admin: no restrictions
+
+    // Apply allowed updates
+    Object.assign(lead, req.body);
+    await lead.save();
+
     res.json(lead);
   } catch (err) {
     next(err);
@@ -198,85 +249,92 @@ router.get("/", auth, async (req, res, next) => {
 });
 
 // backend/routes/leads.js - Bulk operations
-router.patch('/bulk/assign', auth, async (req, res, next) => {
+router.patch("/bulk/assign", auth, async (req, res, next) => {
   try {
     const { leadIds, userId } = req.body;
-    
+
     if (!Array.isArray(leadIds) || leadIds.length === 0) {
-      return res.status(400).json({message: 'leadIds must be a non-empty array'});
+      return res
+        .status(400)
+        .json({ message: "leadIds must be a non-empty array" });
     }
-    
+
     const result = await Lead.updateMany(
       { _id: { $in: leadIds } },
-      { 
+      {
         assigned_to: userId,
-        assigned_at: new Date()
+        assigned_at: new Date(),
       }
     );
-    
+
     res.json({
-      message: 'Bulk assignment completed',
-      modifiedCount: result.modifiedCount
+      message: "Bulk assignment completed",
+      modifiedCount: result.modifiedCount,
     });
-  } catch(err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.patch('/bulk/status', auth, async (req, res, next) => {
+router.patch("/bulk/status", auth, async (req, res, next) => {
   try {
     const { leadIds, status } = req.body;
-    
-    const result = await Lead.updateMany(
-      { _id: { $in: leadIds } },
-      { status }
-    );
-    
+
+    const result = await Lead.updateMany({ _id: { $in: leadIds } }, { status });
+
     res.json({
-      message: 'Bulk status update completed',
-      modifiedCount: result.modifiedCount
+      message: "Bulk status update completed",
+      modifiedCount: result.modifiedCount,
     });
-  } catch(err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.delete('/bulk', auth, async (req, res, next) => {
+router.delete("/bulk", auth, async (req, res, next) => {
   try {
     const { leadIds } = req.body;
-    
+
     const result = await Lead.deleteMany({ _id: { $in: leadIds } });
-    
+
     res.json({
-      message: 'Bulk delete completed',
-      deletedCount: result.deletedCount
+      message: "Bulk delete completed",
+      deletedCount: result.deletedCount,
     });
-  } catch(err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 });
 
 // backend/routes/leads.js - Send email to lead
-router.post('/:id/send-email', auth, async (req, res, next) => {
+router.post("/:id/send-email", auth, async (req, res, next) => {
   try {
     const { subject, message } = req.body;
     const lead = await Lead.findById(req.params.id);
-    
+
     if (!lead || !lead.email) {
-      return res.status(404).json({message: 'Lead not found or no email'});
+      return res.status(404).json({ message: "Lead not found or no email" });
     }
-    
+
     await sendEmail({
       to: lead.email,
       subject,
       html: message,
-      text: message.replace(/<[^>]*>/g, '') // Strip HTML for text version
+      text: message.replace(/<[^>]*>/g, ""), // Strip HTML for text version
     });
-    
+
     // Log the activity
     await Activity.create({
       lead_id: lead._id,
       user_id: req.user.id,
-      type: 'email',
-      description: `Sent email: ${subject}`
+      type: "email",
+      description: `Sent email: ${subject}`,
     });
-    
-    res.json({message: 'Email sent successfully'});
-  } catch(err) { next(err); }
+
+    res.json({ message: "Email sent successfully" });
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     enum: ['admin', 'manager', 'sales_rep'],
     default: 'sales_rep'
   },
-  team: String, // Optional: for organizing reps into teams
+  team: { type : mongoose.Schema.Types.ObjectId, ref: "Team"}, // Optional: for organizing reps into teams
   isActive: {type: Boolean, default: true}
 }, {timestamps: true});
 
