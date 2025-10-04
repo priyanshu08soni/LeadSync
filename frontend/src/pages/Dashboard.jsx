@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import api from "../api/api";
 import { useNotification } from "../contexts/NotificationContext";
+import { AuthContext } from "../contexts/AuthContext";
 import {
   BarChart,
   Bar,
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import {
@@ -26,6 +24,7 @@ import {
 } from "lucide-react";
 
 export default function Dashboard() {
+  const { user: currentUser } = useContext(AuthContext);
   const [stats, setStats] = useState({
     totalLeads: 0,
     leadsByStatus: [],
@@ -36,7 +35,6 @@ export default function Dashboard() {
   });
   const [salesRepPerformance, setSalesRepPerformance] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState(null);
   const [teams, setTeams] = useState([]);
   const [selectedManager, setSelectedManager] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
@@ -44,66 +42,55 @@ export default function Dashboard() {
   const { showNotification } = useNotification();
 
   useEffect(() => {
-    fetchCurrentUser();
-  }, []);
-
-  useEffect(() => {
     if (currentUser) {
       fetchDashboardData();
-      if (currentUser.role === 'admin') {
-        fetchManagers();
+      if (currentUser.role === "admin") {
+        fetchTeams();
       }
     }
   }, [currentUser, selectedManager]);
 
-  const fetchCurrentUser = async () => {
-    try {
-      const res = await api.get("/auth/me");
-      setCurrentUser(res.data);
-    } catch (err) {
-      console.error("Failed to fetch user:", err);
-    }
-  };
-
-  const fetchManagers = async () => {
+  const fetchTeams = async () => {
     try {
       const res = await api.get("/analytics/managers");
-      setManagers(res.data);
+      setTeams(res.data);
     } catch (err) {
-      console.error("Failed to fetch managers:", err);
-    }
-  };
-
-  const fetchTeamMembers = async (managerId) => {
-    try {
-      const res = await api.get(`/analytics/team-members/${managerId}`);
-      setTeamMembers(res.data);
-    } catch (err) {
-      console.error("Failed to fetch team members:", err);
+      console.error("Failed to fetch teams:", err);
+      showNotification("Failed to load teams", "error");
     }
   };
 
   const handleManagerChange = async (e) => {
     const managerId = e.target.value;
     setSelectedManager(managerId);
+
     if (managerId) {
-      await fetchTeamMembers(managerId);
+      const team = teams.find((t) => t.manager._id === managerId);
+      if (team) {
+        setTeamMembers([team.manager, ...team.sales_reps]);
+      }
     } else {
       setTeamMembers([]);
     }
   };
 
+ 
+
   const fetchDashboardData = async () => {
     try {
       const params = {};
-      if (currentUser?.role === 'admin' && selectedManager) {
-        // Admin viewing specific manager's team
-        params.userId = selectedManager;
+
+      if (currentUser?.role === "admin") {
+        if (selectedUser) {
+          params.userId = selectedUser;
+        } else if (selectedManager) {
+          params.managerId = selectedManager;
+        }
       }
 
       const [overviewRes, performanceRes] = await Promise.all([
         api.get("/analytics/overview", { params }),
-        api.get("/analytics/sales-rep-performance"),
+        api.get("/analytics/sales-rep-performance", { params }),
       ]);
 
       setStats(overviewRes.data);
@@ -163,25 +150,39 @@ export default function Dashboard() {
         <p className="text-gray-600 mt-2">
           Overview of your sales pipeline and team performance
         </p>
-        
-        {/* Admin Manager Filter */}
-        {currentUser.role === 'admin' && (
-          <div className="mt-4 flex items-center gap-4">
-            <label className="text-sm font-medium text-gray-700">
-              Filter by Manager:
-            </label>
-            <select
-              value={selectedManager}
-              onChange={handleManagerChange}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Teams</option>
-              {managers.map((manager) => (
-                <option key={manager._id} value={manager._id}>
-                  {manager.name} ({manager.email})
-                </option>
-              ))}
-            </select>
+
+        {/* Admin Filters */}
+        {currentUser.role === "admin" && (
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                Filter by Manager:
+              </label>
+              <select
+                value={selectedManager}
+                onChange={handleManagerChange}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[200px]"
+              >
+                <option value="">All Teams</option>
+                {teams.map((team) => (
+                  <option key={team._id} value={team.manager._id}>
+                    {team.manager.name} ({team.name})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {(selectedManager || selectedUser) && (
+              <button
+                onClick={() => {
+                  setSelectedManager("");
+                  setTeamMembers([]);
+                }}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -261,26 +262,32 @@ export default function Dashboard() {
             <Target className="mr-2 text-blue-600" size={24} />
             Lead Status Distribution
           </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={statusData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(0)}%`
-                }
-                outerRadius={100}
-                dataKey="value"
-              >
-                {statusData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          {statusData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={statusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) =>
+                    `${name}: ${(percent * 100).toFixed(0)}%`
+                  }
+                  outerRadius={100}
+                  dataKey="value"
+                >
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[300px] text-gray-500">
+              No data available
+            </div>
+          )}
         </div>
 
         {/* Lead Source Distribution */}
@@ -289,19 +296,30 @@ export default function Dashboard() {
             <Activity className="mr-2 text-green-600" size={24} />
             Lead Sources
           </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={sourceData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                {sourceData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          {sourceData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={sourceData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="name"
+                  angle={-45}
+                  textAnchor="end"
+                  height={100}
+                />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                  {sourceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[300px] text-gray-500">
+              No data available
+            </div>
+          )}
         </div>
       </div>
 
@@ -310,11 +328,11 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
             <Users className="mr-2 text-purple-600" size={24} />
-            {currentUser.role === 'admin' 
-              ? 'Sales Team Performance' 
-              : currentUser.role === 'manager'
-              ? 'My Team Performance'
-              : 'My Performance'}
+            {currentUser.role === "admin"
+              ? "Sales Team Performance"
+              : currentUser.role === "manager"
+              ? "My Team Performance"
+              : "My Performance"}
           </h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -353,12 +371,14 @@ export default function Dashboard() {
                       <div className="text-sm text-gray-500">{rep.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        rep.role === 'manager'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {rep.role.replace('_', ' ').toUpperCase()}
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          rep.role === "manager"
+                            ? "bg-purple-100 text-purple-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {rep.role.replace("_", " ").toUpperCase()}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -392,7 +412,7 @@ export default function Dashboard() {
       )}
 
       {/* Recent Activities */}
-      {stats.recentActivities.length > 0 && (
+      {stats.recentActivities && stats.recentActivities.length > 0 && (
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
             <Activity className="mr-2 text-orange-600" size={24} />
