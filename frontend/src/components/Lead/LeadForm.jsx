@@ -119,6 +119,8 @@ export default function LeadForm({
           <input
             type="number"
             name="score"
+            min="0"
+            max="100"
             placeholder="Score"
             value={formData.score}
             onChange={onInputChange}
@@ -127,6 +129,7 @@ export default function LeadForm({
           <input
             type="number"
             name="lead_value"
+            min="0"
             placeholder="Lead Value"
             value={formData.lead_value}
             onChange={onInputChange}
