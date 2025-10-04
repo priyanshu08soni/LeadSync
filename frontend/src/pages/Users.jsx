@@ -3,61 +3,6 @@ import { Shield, Users, ChevronDown, ChevronRight } from "lucide-react";
 import { useNotification }  from "../contexts/NotificationContext";
 import { AuthContext } from "../contexts/AuthContext";
 import api from "../api/api";
-// Mock API and contexts for demo
-// const api = {
-//   get: async () => ({
-//     data: {
-//       teams: [
-//         {
-//           "_id": "68dfd273617c0301592e68ad",
-//           "name": "HR",
-//           "manager": {
-//             "_id": "68dfd273617c0301592e68ab",
-//             "email": "22cd3023@rgipt.ac.in",
-//             "name": "vinit",
-//             "role": "manager"
-//           },
-//           "sales_reps": [
-//             {
-//               "_id": "68dfdab9ad6da3d012f98865",
-//               "email": "salesrep1@example.com",
-//               "name": "John Doe",
-//               "role": "sales_rep",
-//               "isActive": true,
-//               "createdAt": "2025-10-03T14:00:00.000Z"
-//             }
-//           ],
-//           "createdAt": "2025-10-03T13:41:07.760Z",
-//           "updatedAt": "2025-10-03T14:16:25.848Z"
-//         },
-//         {
-//           "_id": "68dfe8ed8e392506b3c0f7c1",
-//           "name": "Finance",
-//           "manager": {
-//             "_id": "68dfe8ed8e392506b3c0f7bf",
-//             "email": "manager2@gmail.com",
-//             "name": "Shobhnath Yadav",
-//             "role": "manager"
-//           },
-//           "sales_reps": [
-//             {
-//               "_id": "68dfe91a8e392506b3c0f7d2",
-//               "email": "salesrep2@example.com",
-//               "name": "Jane Smith",
-//               "role": "sales_rep",
-//               "isActive": true,
-//               "createdAt": "2025-10-03T15:10:00.000Z"
-//             }
-//           ],
-//           "createdAt": "2025-10-03T15:17:01.251Z",
-//           "updatedAt": "2025-10-03T15:17:46.366Z"
-//         }
-//       ]
-//     }
-//   })
-// };
-
-
 
 export default function UsersManagement() {
   const { showNotification } = useNotification();

@@ -56,8 +56,8 @@ export default function Leads() {
   useEffect(() => {
     const fetchSalesReps = async () => {
       try {
-        const res = await api.get("/auth/users?role=sales_rep");
-        setSalesReps(res.data.users || []);
+        const res = await api.get("/auth/users/salesreps");
+        setSalesReps(res.data.salesReps || []);
       } catch (err) {
         console.error("Failed to load sales reps", err);
         showNotification("Failed to load sales reps", "error");
