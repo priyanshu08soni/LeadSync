@@ -36,16 +36,73 @@ export default function Dashboard() {
   });
   const [salesRepPerformance, setSalesRepPerformance] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [teams, setTeams] = useState([]);
+  const [selectedManager, setSelectedManager] = useState("");
+  const [selectedUser, setSelectedUser] = useState("");
+  const [teamMembers, setTeamMembers] = useState([]);
   const { showNotification } = useNotification();
 
   useEffect(() => {
-    fetchDashboardData();
+    fetchCurrentUser();
   }, []);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchDashboardData();
+      if (currentUser.role === 'admin') {
+        fetchManagers();
+      }
+    }
+  }, [currentUser, selectedManager]);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await api.get("/auth/me");
+      setCurrentUser(res.data);
+    } catch (err) {
+      console.error("Failed to fetch user:", err);
+    }
+  };
+
+  const fetchManagers = async () => {
+    try {
+      const res = await api.get("/analytics/managers");
+      setManagers(res.data);
+    } catch (err) {
+      console.error("Failed to fetch managers:", err);
+    }
+  };
+
+  const fetchTeamMembers = async (managerId) => {
+    try {
+      const res = await api.get(`/analytics/team-members/${managerId}`);
+      setTeamMembers(res.data);
+    } catch (err) {
+      console.error("Failed to fetch team members:", err);
+    }
+  };
+
+  const handleManagerChange = async (e) => {
+    const managerId = e.target.value;
+    setSelectedManager(managerId);
+    if (managerId) {
+      await fetchTeamMembers(managerId);
+    } else {
+      setTeamMembers([]);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
+      const params = {};
+      if (currentUser?.role === 'admin' && selectedManager) {
+        // Admin viewing specific manager's team
+        params.userId = selectedManager;
+      }
+
       const [overviewRes, performanceRes] = await Promise.all([
-        api.get("/analytics/overview"),
+        api.get("/analytics/overview", { params }),
         api.get("/analytics/sales-rep-performance"),
       ]);
 
@@ -59,7 +116,7 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) {
+  if (loading || !currentUser) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
@@ -106,6 +163,27 @@ export default function Dashboard() {
         <p className="text-gray-600 mt-2">
           Overview of your sales pipeline and team performance
         </p>
+        
+        {/* Admin Manager Filter */}
+        {currentUser.role === 'admin' && (
+          <div className="mt-4 flex items-center gap-4">
+            <label className="text-sm font-medium text-gray-700">
+              Filter by Manager:
+            </label>
+            <select
+              value={selectedManager}
+              onChange={handleManagerChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All Teams</option>
+              {managers.map((manager) => (
+                <option key={manager._id} value={manager._id}>
+                  {manager.name} ({manager.email})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* KPI Cards */}
@@ -232,7 +310,11 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
             <Users className="mr-2 text-purple-600" size={24} />
-            Sales Rep Performance
+            {currentUser.role === 'admin' 
+              ? 'Sales Team Performance' 
+              : currentUser.role === 'manager'
+              ? 'My Team Performance'
+              : 'My Performance'}
           </h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -240,6 +322,9 @@ export default function Dashboard() {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Role
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total Leads
@@ -266,6 +351,15 @@ export default function Dashboard() {
                         {rep.name}
                       </div>
                       <div className="text-sm text-gray-500">{rep.email}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        rep.role === 'manager'
+                          ? 'bg-purple-100 text-purple-800'
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {rep.role.replace('_', ' ').toUpperCase()}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {rep.totalLeads}

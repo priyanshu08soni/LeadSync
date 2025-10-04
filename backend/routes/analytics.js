@@ -3,7 +3,27 @@ const express = require('express');
 const router = express.Router();
 const Lead = require('../models/Lead');
 const Activity = require('../models/Activity');
+const User = require('../models/User');
+const Team = require('../models/Team');
 const auth = require('../middleware/auth');
+
+// Helper function to get accessible user IDs based on role
+async function getAccessibleUserIds(req) {
+  const user = req.user;
+  
+  if (user.role === 'admin') {
+    // Admin can see all users
+    return null; // null means no filter
+  } else if (user.role === 'manager') {
+    // Manager can see their own team members
+    const team = await Team.findOne({ manager: user.id });
+    if (!team) return [user.id]; // If no team, only show own data
+    return [...team.sales_reps, user.id]; // Include manager and their sales reps
+  } else {
+    // Sales rep can only see their own data
+    return [user.id];
+  }
+}
 
 // Overview stats
 router.get('/overview', auth, async (req, res, next) => {
@@ -18,9 +38,18 @@ router.get('/overview', auth, async (req, res, next) => {
     if (Object.keys(dateFilter).length > 0) {
       leadFilter.createdAt = dateFilter;
     }
-    if (userId) {
+    
+    // Apply role-based filtering
+    const accessibleUserIds = await getAccessibleUserIds(req);
+    
+    if (userId && req.user.role === 'admin') {
+      // Admin can filter by specific user
       leadFilter.assigned_to = userId;
+    } else if (accessibleUserIds) {
+      // Manager or sales_rep: filter by accessible users
+      leadFilter.assigned_to = { $in: accessibleUserIds };
     }
+    // If accessibleUserIds is null (admin without userId filter), no assigned_to filter
     
     // Aggregate statistics
     const [
@@ -48,7 +77,7 @@ router.get('/overview', auth, async (req, res, next) => {
         { $group: { _id: null, avg: { $avg: '$lead_value' } } }
       ]),
       
-      Activity.find(leadFilter.assigned_to ? { user_id: leadFilter.assigned_to } : {})
+      Activity.find(accessibleUserIds ? { user_id: { $in: accessibleUserIds } } : {})
         .populate('lead_id', 'first_name last_name company')
         .populate('user_id', 'name')
         .sort({ createdAt: -1 })
@@ -90,7 +119,13 @@ router.get('/overview', auth, async (req, res, next) => {
 // Sales funnel visualization data
 router.get('/funnel', auth, async (req, res, next) => {
   try {
+    const accessibleUserIds = await getAccessibleUserIds(req);
+    const matchFilter = accessibleUserIds 
+      ? { assigned_to: { $in: accessibleUserIds } }
+      : {};
+    
     const funnel = await Lead.aggregate([
+      { $match: matchFilter },
       {
         $group: {
           _id: '$status',
@@ -108,8 +143,15 @@ router.get('/funnel', auth, async (req, res, next) => {
 // Performance by sales rep
 router.get('/sales-rep-performance', auth, async (req, res, next) => {
   try {
+    const accessibleUserIds = await getAccessibleUserIds(req);
+    
+    const matchFilter = { assigned_to: { $exists: true, $ne: null } };
+    if (accessibleUserIds) {
+      matchFilter.assigned_to = { $in: accessibleUserIds };
+    }
+    
     const performance = await Lead.aggregate([
-      { $match: { assigned_to: { $exists: true, $ne: null } } },
+      { $match: matchFilter },
       {
         $group: {
           _id: '$assigned_to',
@@ -135,6 +177,7 @@ router.get('/sales-rep-performance', auth, async (req, res, next) => {
         $project: {
           name: '$user.name',
           email: '$user.email',
+          role: '$user.role',
           totalLeads: 1,
           wonLeads: 1,
           totalValue: 1,
@@ -147,6 +190,40 @@ router.get('/sales-rep-performance', auth, async (req, res, next) => {
     ]);
     
     res.json(performance);
+  } catch(err) { next(err); }
+});
+
+// Get managers with their teams for admin dropdown
+router.get('/managers', auth, async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    
+    const teams = await Team.find()
+      .populate('manager', 'name email')
+      .populate('sales_reps', 'name email');
+    
+    res.json(teams);
+  } catch(err) { next(err); }
+});
+
+// Get sales reps for a specific manager (for admin view)
+router.get('/team-members/:managerId', auth, async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    
+    const team = await Team.findOne({ manager: req.params.managerId })
+      .populate('sales_reps', 'name email')
+      .populate('manager', 'name email');
+    
+    if (!team) {
+      return res.json([]);
+    }
+    
+    res.json([team.manager, ...team.sales_reps]);
   } catch(err) { next(err); }
 });
 
