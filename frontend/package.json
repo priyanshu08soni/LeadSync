@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
     "ag-grid-community": "^30.0.2",
     "ag-grid-react": "^30.0.2",
     "axios": "^1.4.0",

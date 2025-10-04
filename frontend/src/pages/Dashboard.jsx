@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, Fragment } from "react";
 import api from "../api/api";
 import { useNotification } from "../contexts/NotificationContext";
 import { AuthContext } from "../contexts/AuthContext";
+import { Listbox, Transition } from "@headlessui/react";
 import {
   BarChart,
   Bar,
@@ -21,6 +22,8 @@ import {
   Target,
   Activity,
   Award,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -73,8 +76,6 @@ export default function Dashboard() {
       setTeamMembers([]);
     }
   };
-
- 
 
   const fetchDashboardData = async () => {
     try {
@@ -153,23 +154,104 @@ export default function Dashboard() {
 
         {/* Admin Filters */}
         {currentUser.role === "admin" && (
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <label className="text-sm font-semibold text-gray-700">
                 Filter by Manager:
               </label>
-              <select
-                value={selectedManager}
-                onChange={handleManagerChange}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[200px]"
-              >
-                <option value="">All Teams</option>
-                {teams.map((team) => (
-                  <option key={team._id} value={team.manager._id}>
-                    {team.manager.name} ({team.name})
-                  </option>
-                ))}
-              </select>
+
+              <div className="relative w-60">
+                <Listbox value={selectedManager} onChange={setSelectedManager}>
+                  {({ open }) => (
+                    <>
+                      <Listbox.Button
+                        className={`relative w-full cursor-pointer rounded-2xl border border-gray-200 bg-white py-3 pl-5 pr-10 text-left shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:border-transparent transition-all duration-300 text-gray-700 font-medium ${
+                          open ? "ring-1 ring-blue-300" : ""
+                        }`}
+                      >
+                        <span className="block truncate">
+                          {selectedManager
+                            ? teams.find(
+                                (t) => t.manager._id === selectedManager
+                              )?.manager?.name
+                            : "All Teams"}
+                        </span>
+                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                          <ChevronDown
+                            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${
+                              open ? "rotate-180 text-gray-600" : ""
+                            }`}
+                          />
+                        </span>
+                      </Listbox.Button>
+
+                      <Transition
+                        as={Fragment}
+                        leave="transition ease-in duration-100"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                      >
+                        <Listbox.Options className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-xl bg-white py-2 shadow-xl ring-1 ring-gray-200 focus:outline-none text-sm">
+                          <Listbox.Option
+                            value=""
+                            className={({ active }) =>
+                              `relative cursor-pointer select-none py-3 px-4 ${
+                                active
+                                  ? "bg-blue-50 text-blue-700"
+                                  : "text-gray-700"
+                              }`
+                            }
+                          >
+                            {({ selected }) => (
+                              <div className="flex justify-between items-center">
+                                <span
+                                  className={
+                                    selected ? "font-semibold" : "font-normal"
+                                  }
+                                >
+                                  All Teams
+                                </span>
+                                {selected ? (
+                                  <Check className="h-4 w-4 text-blue-500" />
+                                ) : null}
+                              </div>
+                            )}
+                          </Listbox.Option>
+
+                          {teams.map((team) => (
+                            <Listbox.Option
+                              key={team._id}
+                              value={team.manager._id}
+                              className={({ active }) =>
+                                `relative cursor-pointer select-none py-3 px-4 flex justify-between items-center ${
+                                  active
+                                    ? "bg-blue-50 text-blue-700"
+                                    : "text-gray-700"
+                                }`
+                              }
+                            >
+                              {({ selected }) => (
+                                <>
+                                  <span
+                                    className={`block truncate ${
+                                      selected ? "font-semibold" : "font-normal"
+                                    }`}
+                                  >
+                                    {team.manager.name} ({team.name})
+                                  </span>
+                                  {selected && (
+                                    <Check className="h-4 w-4 text-blue-500 shrink-0" />
+                                  )}
+                                </>
+                              )}
+                            </Listbox.Option>
+                          ))}
+                        </Listbox.Options>
+                      </Transition>
+                    </>
+                  )}
+                </Listbox>
+              </div>
             </div>
 
             {(selectedManager || selectedUser) && (
@@ -178,9 +260,24 @@ export default function Dashboard() {
                   setSelectedManager("");
                   setTeamMembers([]);
                 }}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium"
+                className="px-5 py-3.5 rounded-3xl font-medium text-sm bg-red-500 text-white transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200/80 hover:border-gray-300/80 backdrop-blur-sm"
               >
-                Clear Filters
+                <span className="flex items-center gap-2">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                  Clear Filters
+                </span>
               </button>
             )}
           </div>
