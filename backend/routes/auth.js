@@ -142,13 +142,8 @@ router.get("/users", auth, async (req, res, next) => {
     if (!["admin", "manager"].includes(req.user.role)) {
       return res.status(403).json({ message: "Forbidden" });
     }
-
-    const { role } = req.query;
-    const query = { isActive: true };
-    if (role) query.role = role;
-
-    const users = await User.find(query).select("-password");
-    res.json({ users });
+    const teams = await Team.find().populate("sales_reps", "_id email name role createdAt").populate("manager", "_id name email role");
+    res.json({ teams });
   } catch (err) {
     next(err);
   }

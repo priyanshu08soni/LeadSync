@@ -108,7 +108,7 @@ router.get("/", auth, async (req, res, next) => {
         team.manager,
         ...team.sales_reps.map((rep) => rep._id),
       ];
-
+      //Leads assigned to that team’s manager or reps will be returned.
       filter.assigned_to = { $in: teamUserIds };
     }
 
