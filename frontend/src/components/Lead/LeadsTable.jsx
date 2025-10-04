@@ -41,7 +41,7 @@ export default function LeadsTable({
 
     { field: "status", maxWidth: 100 },
     { field: "score", maxWidth: 100 },
-    { field: "lead_value", headerName: "Value", maxWidth: 120 },
+    { field: "lead_value", headerName: "$Value", maxWidth: 120 },
     {
       field: "createdAt",
       headerName: "Created",

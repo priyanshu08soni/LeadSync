@@ -347,20 +347,6 @@ export default function Leads() {
                 </select>
               </div>
 
-              {/* Qualified Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Qualified</label>
-                <select
-                  value={filters.is_qualified}
-                  onChange={(e) => handleFilterChange("is_qualified", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">All</option>
-                  <option value="true">Qualified</option>
-                  <option value="false">Not Qualified</option>
-                </select>
-              </div>
-
               {/* Score Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Min Score</label>
