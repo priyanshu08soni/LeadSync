@@ -77,10 +77,8 @@ export default function LeadsTable({
           {/* Edit button: 
               - Admin/Manager can edit all leads
               - SalesRep can only edit if assigned to them */}
-          {(isAdmin ||
-            isManager ||
-            (isSalesRep &&
-              params.data.assigned_to?._id === currentUser._id)) && (
+          {(isAdmin || isManager) && (
+            (params.data.assigned_to?._id === currentUser._id)) && (
             <button
               onClick={() => onEdit(params.data)}
               className="p-1 bg-yellow-100 hover:bg-yellow-200 rounded"
