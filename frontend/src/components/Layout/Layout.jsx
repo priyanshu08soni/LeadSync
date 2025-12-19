@@ -4,12 +4,12 @@ import Footer from "./Footer";
 
 function Layout({ children }) {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen">
       {/* Navbar */}
       <Navbar />
 
       {/* Main content area */}
-      <main className="flex-grow container mt-8">
+      <main className="flex-grow">
         {children}
       </main>
 

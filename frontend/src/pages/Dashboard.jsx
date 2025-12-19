@@ -24,6 +24,8 @@ import {
   Award,
   ChevronDown,
   Check,
+  LayoutDashboard,
+  Calendar,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -51,7 +53,7 @@ export default function Dashboard() {
         fetchTeams();
       }
     }
-  }, [currentUser, selectedManager]);
+  }, [currentUser, selectedManager, selectedUser]);
 
   const fetchTeams = async () => {
     try {
@@ -59,34 +61,15 @@ export default function Dashboard() {
       setTeams(res.data);
     } catch (err) {
       console.error("Failed to fetch teams:", err);
-      showNotification("Failed to load teams", "error");
-    }
-  };
-
-  const handleManagerChange = async (e) => {
-    const managerId = e.target.value;
-    setSelectedManager(managerId);
-
-    if (managerId) {
-      const team = teams.find((t) => t.manager._id === managerId);
-      if (team) {
-        setTeamMembers([team.manager, ...team.sales_reps]);
-      }
-    } else {
-      setTeamMembers([]);
     }
   };
 
   const fetchDashboardData = async () => {
     try {
       const params = {};
-
       if (currentUser?.role === "admin") {
-        if (selectedUser) {
-          params.userId = selectedUser;
-        } else if (selectedManager) {
-          params.managerId = selectedManager;
-        }
+        if (selectedUser) params.userId = selectedUser;
+        else if (selectedManager) params.managerId = selectedManager;
       }
 
       const [overviewRes, performanceRes] = await Promise.all([
@@ -107,12 +90,11 @@ export default function Dashboard() {
   if (loading || !currentUser) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+        <Activity className="animate-spin text-blue-500" size={48} />
       </div>
     );
   }
 
-  // Colors for charts
   const STATUS_COLORS = {
     new: "#3B82F6",
     contacted: "#F59E0B",
@@ -121,16 +103,8 @@ export default function Dashboard() {
     won: "#8B5CF6",
   };
 
-  const SOURCE_COLORS = [
-    "#3B82F6",
-    "#F59E0B",
-    "#10B981",
-    "#EF4444",
-    "#8B5CF6",
-    "#EC4899",
-  ];
+  const SOURCE_COLORS = ["#3B82F6", "#F59E0B", "#10B981", "#EF4444", "#8B5CF6", "#EC4899"];
 
-  // Format status data for charts
   const statusData = stats.leadsByStatus.map((item) => ({
     name: item._id.charAt(0).toUpperCase() + item._id.slice(1),
     value: item.count,
@@ -143,269 +117,154 @@ export default function Dashboard() {
     fill: SOURCE_COLORS[index % SOURCE_COLORS.length],
   }));
 
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="glass-card p-3 rounded-xl border border-white/10 shadow-xl">
+          <p className="text-white font-medium">{payload[0].name}</p>
+          <p className="text-blue-400 font-bold">{payload[0].value} Leads</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
-          Overview of your sales pipeline and team performance
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <LayoutDashboard className="text-blue-500" />
+            Dashboard
+          </h1>
+          <p className="text-slate-400 mt-1">Overview of your sales pipeline and team performance</p>
+        </div>
 
-        {/* Admin Filters */}
         {currentUser.role === "admin" && (
-          <div className="mt-6 flex flex-wrap items-center gap-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label className="text-sm font-semibold text-gray-700">
-                Filter by Manager:
-              </label>
-
-              <div className="relative w-60">
-                <Listbox value={selectedManager} onChange={setSelectedManager}>
-                  {({ open }) => (
-                    <>
-                      <Listbox.Button
-                        className={`relative w-full cursor-pointer rounded-2xl border border-gray-200 bg-white py-3 pl-5 pr-10 text-left shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:border-transparent transition-all duration-300 text-gray-700 font-medium ${
-                          open ? "ring-1 ring-blue-300" : ""
-                        }`}
-                      >
-                        <span className="block truncate">
-                          {selectedManager
-                            ? teams.find(
-                                (t) => t.manager._id === selectedManager
-                              )?.manager?.name
-                            : "All Teams"}
-                        </span>
-                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                          <ChevronDown
-                            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${
-                              open ? "rotate-180 text-gray-600" : ""
-                            }`}
-                          />
-                        </span>
-                      </Listbox.Button>
-
-                      <Transition
-                        as={Fragment}
-                        leave="transition ease-in duration-100"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                      >
-                        <Listbox.Options className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-xl bg-white py-2 shadow-xl ring-1 ring-gray-200 focus:outline-none text-sm">
-                          <Listbox.Option
-                            value=""
-                            className={({ active }) =>
-                              `relative cursor-pointer select-none py-3 px-4 ${
-                                active
-                                  ? "bg-blue-50 text-blue-700"
-                                  : "text-gray-700"
-                              }`
-                            }
-                          >
-                            {({ selected }) => (
-                              <div className="flex justify-between items-center">
-                                <span
-                                  className={
-                                    selected ? "font-semibold" : "font-normal"
-                                  }
-                                >
-                                  All Teams
-                                </span>
-                                {selected ? (
-                                  <Check className="h-4 w-4 text-blue-500" />
-                                ) : null}
-                              </div>
-                            )}
-                          </Listbox.Option>
-
-                          {teams.map((team) => (
-                            <Listbox.Option
-                              key={team._id}
-                              value={team.manager._id}
-                              className={({ active }) =>
-                                `relative cursor-pointer select-none py-3 px-4 flex justify-between items-center ${
-                                  active
-                                    ? "bg-blue-50 text-blue-700"
-                                    : "text-gray-700"
-                                }`
-                              }
-                            >
-                              {({ selected }) => (
-                                <>
-                                  <span
-                                    className={`block truncate ${
-                                      selected ? "font-semibold" : "font-normal"
-                                    }`}
-                                  >
-                                    {team.manager.name} ({team.name})
-                                  </span>
-                                  {selected && (
-                                    <Check className="h-4 w-4 text-blue-500 shrink-0" />
-                                  )}
-                                </>
-                              )}
-                            </Listbox.Option>
-                          ))}
-                        </Listbox.Options>
-                      </Transition>
-                    </>
-                  )}
-                </Listbox>
-              </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative w-64">
+              <Listbox value={selectedManager} onChange={setSelectedManager}>
+                <div className="relative">
+                  <Listbox.Button className="relative w-full glass-input text-left pr-10">
+                    <span className="block truncate">
+                      {selectedManager ? teams.find(t => t.manager._id === selectedManager)?.manager?.name || "Team Selected" : "All Teams"}
+                    </span>
+                    <span className="absolute inset-y-0 right-0 flex items-center pr-3">
+                      <ChevronDown className="h-5 w-5 text-slate-500" />
+                    </span>
+                  </Listbox.Button>
+                  <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+                    <Listbox.Options className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-xl bg-slate-800 border border-white/10 py-1 shadow-2xl focus:outline-none">
+                      <Listbox.Option value="" className={({ active }) => `relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? "bg-blue-600/20 text-blue-400" : "text-slate-300"}`}>
+                        {({ selected }) => (
+                          <>
+                            <span className={`block truncate ${selected ? "font-medium text-white" : "font-normal"}`}>All Teams</span>
+                            {selected && <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-500"><Check size={18} /></span>}
+                          </>
+                        )}
+                      </Listbox.Option>
+                      {teams.map((team) => (
+                        <Listbox.Option key={team._id} value={team.manager._id} className={({ active }) => `relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? "bg-blue-600/20 text-blue-400" : "text-slate-300"}`}>
+                          {({ selected }) => (
+                            <>
+                              <span className={`block truncate ${selected ? "font-medium text-white" : "font-normal"}`}>{team.manager.name} ({team.name})</span>
+                              {selected && <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-500"><Check size={18} /></span>}
+                            </>
+                          )}
+                        </Listbox.Option>
+                      ))}
+                    </Listbox.Options>
+                  </Transition>
+                </div>
+              </Listbox>
             </div>
-
-            {(selectedManager || selectedUser) && (
-              <button
-                onClick={() => {
-                  setSelectedManager("");
-                  setTeamMembers([]);
-                }}
-                className="px-5 py-3.5 rounded-3xl font-medium text-sm bg-red-500 text-white transition-all duration-300 shadow-sm hover:shadow-md border border-gray-200/80 hover:border-gray-300/80 backdrop-blur-sm"
-              >
-                <span className="flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                  Clear Filters
-                </span>
-              </button>
-            )}
           </div>
         )}
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Leads */}
-        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-blue-500 group hover:translate-y-[-4px] transition-all duration-300 bg-slate-900/60">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium">Total Leads</p>
-              <h3 className="text-3xl font-bold text-gray-800 mt-2">
-                {stats.totalLeads}
-              </h3>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Leads</p>
+              <h3 className="text-4xl font-extrabold text-slate-50 mt-1">{stats.totalLeads}</h3>
             </div>
-            <div className="bg-blue-100 p-3 rounded-full">
-              <Users className="text-blue-600" size={24} />
-            </div>
+            <div className="bg-blue-500/20 p-3 rounded-2xl text-blue-400 group-hover:scale-110 transition-transform"><Users size={28} /></div>
           </div>
         </div>
 
-        {/* Conversion Rate */}
-        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-emerald-500 group hover:translate-y-[-4px] transition-all duration-300 bg-slate-900/60">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium">
-                Conversion Rate
-              </p>
-              <h3 className="text-3xl font-bold text-gray-800 mt-2">
-                {stats.conversionRate.toFixed(1)}%
-              </h3>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Conversion Rate</p>
+              <h3 className="text-4xl font-extrabold text-slate-50 mt-1">{stats.conversionRate.toFixed(1)}%</h3>
             </div>
-            <div className="bg-green-100 p-3 rounded-full">
-              <TrendingUp className="text-green-600" size={24} />
-            </div>
+            <div className="bg-emerald-500/20 p-3 rounded-2xl text-emerald-400 group-hover:scale-110 transition-transform"><TrendingUp size={28} /></div>
           </div>
         </div>
 
-        {/* Avg Lead Value */}
-        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-purple-500 group hover:translate-y-[-4px] transition-all duration-300 bg-slate-900/60">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium">
-                Avg Lead Value
-              </p>
-              <h3 className="text-3xl font-bold text-gray-800 mt-2">
-                ${stats.avgLeadValue.toFixed(0)}
-              </h3>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Avg Lead Value</p>
+              <h3 className="text-4xl font-extrabold text-slate-50 mt-1">${stats.avgLeadValue.toFixed(0)}</h3>
             </div>
-            <div className="bg-purple-100 p-3 rounded-full">
-              <DollarSign className="text-purple-600" size={24} />
-            </div>
+            <div className="bg-purple-500/20 p-3 rounded-2xl text-purple-400 group-hover:scale-110 transition-transform"><DollarSign size={28} /></div>
           </div>
         </div>
 
-        {/* Won Deals */}
-        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-amber-500 group hover:translate-y-[-4px] transition-all duration-300 bg-slate-900/60">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium">Won Deals</p>
-              <h3 className="text-3xl font-bold text-gray-800 mt-2">
-                {stats.leadsByStatus.find((s) => s._id === "won")?.count || 0}
-              </h3>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Won Deals</p>
+              <h3 className="text-4xl font-extrabold text-slate-50 mt-1">{stats.leadsByStatus.find((s) => s._id === "won")?.count || 0}</h3>
             </div>
-            <div className="bg-yellow-100 p-3 rounded-full">
-              <Award className="text-yellow-600" size={24} />
-            </div>
+            <div className="bg-amber-500/20 p-3 rounded-2xl text-amber-400 group-hover:scale-110 transition-transform"><Award size={28} /></div>
           </div>
         </div>
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Lead Status Distribution */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <Target className="mr-2 text-blue-600" size={24} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="glass-card rounded-2xl p-6">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Target className="text-blue-500" />
             Lead Status Distribution
           </h3>
           {statusData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={320}>
               <PieChart>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name}: ${(percent * 100).toFixed(0)}%`
-                  }
-                  outerRadius={100}
-                  dataKey="value"
-                >
+                <Pie data={statusData} cx="50%" cy="50%" labelLine={false} innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
                   {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                    <Cell key={`cell-${index}`} fill={entry.fill} className="focus:outline-none" />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-[300px] text-gray-500">
-              No data available
+            <div className="flex flex-col items-center justify-center h-[320px] text-slate-500 gap-2">
+              <Target size={40} className="text-slate-700" />
+              <span>No data available</span>
             </div>
           )}
         </div>
 
-        {/* Lead Source Distribution */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <Activity className="mr-2 text-green-600" size={24} />
+        <div className="glass-card rounded-2xl p-6">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Activity className="text-emerald-500" />
             Lead Sources
           </h3>
           {sourceData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={320}>
               <BarChart data={sourceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="name"
-                  angle={-45}
-                  textAnchor="end"
-                  height={100}
-                />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
+                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "#ffffff05" }} />
+                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                   {sourceData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
@@ -413,152 +272,44 @@ export default function Dashboard() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-[300px] text-gray-500">
-              No data available
+            <div className="flex flex-col items-center justify-center h-[320px] text-slate-500 gap-2">
+              <Activity size={40} className="text-slate-700" />
+              <span>No data available</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Sales Rep Performance */}
-      {salesRepPerformance.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <Users className="mr-2 text-purple-600" size={24} />
-            {currentUser.role === "admin"
-              ? "Sales Team Performance"
-              : currentUser.role === "manager"
-              ? "My Team Performance"
-              : "My Performance"}
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Leads
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Won Leads
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Conversion Rate
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Value
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {salesRepPerformance.map((rep, index) => (
-                  <tr
-                    key={rep._id}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {rep.name}
-                      </div>
-                      <div className="text-sm text-gray-500">{rep.email}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          rep.role === "manager"
-                            ? "bg-purple-100 text-purple-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}
-                      >
-                        {rep.role.replace("_", " ").toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {rep.totalLeads}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {rep.wonLeads}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          rep.conversionRate >= 20
-                            ? "bg-green-100 text-green-800"
-                            : rep.conversionRate >= 10
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {rep.conversionRate.toFixed(1)}%
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      ${rep.totalValue.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
       {/* Recent Activities */}
-      {stats.recentActivities && stats.recentActivities.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <Activity className="mr-2 text-orange-600" size={24} />
-            Recent Activities
-          </h3>
-          <div className="space-y-4">
-            {stats.recentActivities.map((activity) => (
-              <div
-                key={activity._id}
-                className="flex items-start p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
-              >
-                <div
-                  className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                    activity.type === "call"
-                      ? "bg-blue-100 text-blue-600"
-                      : activity.type === "email"
-                      ? "bg-green-100 text-green-600"
-                      : activity.type === "meeting"
-                      ? "bg-purple-100 text-purple-600"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {activity.type === "call"
-                    ? "📞"
-                    : activity.type === "email"
-                    ? "📧"
-                    : activity.type === "meeting"
-                    ? "👥"
-                    : "📝"}
+      <div className="glass-card rounded-2xl p-6">
+        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <Calendar className="text-amber-500" />
+          Recent Activities
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {stats.recentActivities?.length > 0 ? (
+            stats.recentActivities.map((activity) => (
+              <div key={activity._id} className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors flex items-start gap-4">
+                <div className={`p-3 rounded-xl ${activity.type === "call" ? "bg-blue-500/10 text-blue-500" : activity.type === "email" ? "bg-emerald-500/10 text-emerald-500" : "bg-purple-500/10 text-purple-500"}`}>
+                  {activity.type === "call" ? "📞" : activity.type === "email" ? "📧" : "👥"}
                 </div>
-                <div className="ml-4 flex-grow">
-                  <p className="text-sm font-medium text-gray-900">
-                    {activity.description}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {activity.user_id?.name || "Unknown User"} •{" "}
-                    {activity.lead_id
-                      ? `${activity.lead_id.first_name} ${activity.lead_id.last_name} (${activity.lead_id.company})`
-                      : "Lead deleted"}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {new Date(activity.createdAt).toLocaleString()}
+                <div>
+                  <p className="text-sm text-slate-200 line-clamp-1">{activity.description}</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {activity.user_id?.name} • {new Date(activity.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
-            ))}
-          </div>
+            ))
+          ) : (
+            <div className="col-span-full py-12 flex flex-col items-center gap-2 text-slate-500">
+              <Calendar size={40} className="text-slate-700" />
+              <span>No recent activities found</span>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
+

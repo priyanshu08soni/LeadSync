@@ -1,91 +1,97 @@
 import React from "react";
-import { X } from "lucide-react";
+import { X, User, Mail, Phone, Building2, MapPin, Globe, Star, Wallet, Users, Calendar, Info, Clock } from "lucide-react";
 
 export default function LeadDetailsModal({ selectedLead, onClose }) {
   if (!selectedLead) return null;
 
+  const DetailItem = ({ icon: Icon, label, value, colorClass = "text-blue-500" }) => (
+    <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+      <div className={`p-2.5 rounded-xl bg-opacity-10 ${colorClass.replace("text-", "bg-")} ${colorClass}`}>
+        <Icon size={20} />
+      </div>
+      <div>
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</p>
+        <p className="text-white font-medium mt-0.5">{value || "N/A"}</p>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-2xl font-semibold">Lead Details</h3>
+    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[100] p-4 animate-in fade-in duration-300">
+      <div className="glass-card w-full max-w-2xl rounded-3xl overflow-hidden border border-white/10 shadow-2xl flex flex-col max-h-[90vh] bg-slate-950/80">
+        {/* Header */}
+        <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/60">
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-blue-500/20">
+              {selectedLead.first_name[0]}{selectedLead.last_name[0]}
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-slate-50 leading-tight tracking-tight">
+                {selectedLead.first_name} {selectedLead.last_name}
+              </h3>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-current ${selectedLead.status === 'won' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                  selectedLead.status === 'lost' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
+                    'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                  }`}>
+                  {selectedLead.status}
+                </span>
+                <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 ml-2">
+                  <Clock size={12} className="text-slate-600" />
+                  Joined {new Date(selectedLead.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition"
+            className="p-2 hover:bg-white/5 rounded-xl transition-colors text-slate-500 hover:text-white"
           >
-            <X size={20} />
+            <X size={24} />
           </button>
         </div>
-        
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">First Name</p>
-              <p className="font-medium">{selectedLead.first_name}</p>
+
+        {/* Info Grid */}
+        <div className="p-6 overflow-y-auto custom-scrollbar">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <div className="w-8 h-[1px] bg-slate-800"></div>
+                Contact Details
+                <div className="flex-1 h-[1px] bg-slate-800"></div>
+              </h4>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Last Name</p>
-              <p className="font-medium">{selectedLead.last_name}</p>
+            <DetailItem icon={Mail} label="Email Address" value={selectedLead.email} colorClass="text-blue-400" />
+            <DetailItem icon={Phone} label="Phone Number" value={selectedLead.phone} colorClass="text-emerald-400" />
+            <DetailItem icon={Building2} label="Company" value={selectedLead.company} colorClass="text-purple-400" />
+            <DetailItem icon={MapPin} label="Location" value={`${selectedLead.city || ""}${selectedLead.city && selectedLead.state ? ", " : ""}${selectedLead.state || ""}`} colorClass="text-rose-400" />
+
+            <div className="md:col-span-2 mt-6">
+              <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <div className="w-8 h-[1px] bg-slate-800"></div>
+                Pipeline Information
+                <div className="flex-1 h-[1px] bg-slate-800"></div>
+              </h4>
             </div>
-            <div className="col-span-2">
-              <p className="text-sm text-gray-600">Email</p>
-              <p className="font-medium">{selectedLead.email}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Phone</p>
-              <p className="font-medium">{selectedLead.phone || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Company</p>
-              <p className="font-medium">{selectedLead.company || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">City</p>
-              <p className="font-medium">{selectedLead.city || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">State</p>
-              <p className="font-medium">{selectedLead.state || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Source</p>
-              <p className="font-medium capitalize">{selectedLead.source?.replace("_", " ")}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Status</p>
-              <p className="font-medium capitalize">{selectedLead.status}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Score</p>
-              <p className="font-medium">{selectedLead.score || 0}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Lead Value</p>
-              <p className="font-medium">${selectedLead.lead_value || 0}</p>
-            </div>
-            <div className="col-span-2">
-              <p className="text-sm text-gray-600">Assigned To</p>
-              <p className="font-medium">
-                {selectedLead.assigned_to
-                  ? `${selectedLead.assigned_to.name} (${selectedLead.assigned_to.email})`
-                  : "Not assigned"}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Created At</p>
-              <p className="font-medium">
-                {new Date(selectedLead.createdAt).toLocaleString()}
-              </p>
+            <DetailItem icon={Wallet} label="Expected Value" value={`$${selectedLead.lead_value?.toLocaleString() || 0}`} colorClass="text-amber-400" />
+            <DetailItem icon={Star} label="Lead Score" value={`${selectedLead.score || 0}/100`} colorClass="text-yellow-400" />
+            <DetailItem icon={Globe} label="Lead Source" value={selectedLead.source?.replace("_", " ")} colorClass="text-cyan-400" />
+            <DetailItem icon={Users} label="Sales Owner" value={selectedLead.assigned_to?.name} colorClass="text-indigo-400" />
+
+            <div className="md:col-span-2 mt-6 p-4 rounded-2xl bg-slate-900/40 border border-white/5 text-slate-400 text-xs font-bold flex items-center gap-3">
+              <Calendar size={18} className="text-slate-600 shrink-0" />
+              <span className="uppercase tracking-wider">System Log: Registered on {new Date(selectedLead.createdAt).toLocaleString()}</span>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end mt-6">
+        {/* Footer */}
+        <div className="p-6 border-t border-white/5 bg-slate-900/60 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            className="glass-button py-2.5 px-8 text-sm font-black uppercase tracking-widest"
           >
-            Close
+            Close Dashboard
           </button>
         </div>
       </div>
