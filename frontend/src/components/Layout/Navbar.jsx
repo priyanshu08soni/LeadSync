@@ -47,7 +47,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="fixed top-4 left-4 right-4 md:left-10 md:right-10 backdrop-blur-md dark:text-white text-slate-900 px-6 py-3 flex justify-between items-center shadow-2xl rounded-full dark:bg-slate-900/40 bg-white/80 dark:border-white/10 border-slate-200 z-50">
+    <nav className="fixed top-4 left-4 right-4 md:left-8 md:right-8 backdrop-blur-md dark:text-white text-slate-900 px-6 py-3 flex justify-between items-center shadow-2xl rounded-full dark:bg-slate-900/40 bg-white/80 dark:border-white/10 border-slate-200 z-50">
       {/* Logo + Title */}
       <div className="flex items-center gap-3">
         <img

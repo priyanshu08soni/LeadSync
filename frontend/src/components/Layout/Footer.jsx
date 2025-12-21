@@ -11,7 +11,7 @@ import {
 
 function Footer() {
   return (
-    <footer className="relative mt-16 mx-4 md:mx-10">
+    <footer className="relative mt-16 mx-4 md:mx-8">
       {/* Main Footer Card */}
       <div className="backdrop-blur-md bg-slate-900/70 shadow-2xl border border-white/10 rounded-2xl p-8 md:p-10 flex flex-col md:flex-row justify-between items-center gap-8">
         {/* Left Section — Logo + Brand */}
