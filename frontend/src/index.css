@@ -69,7 +69,7 @@
 
   /* Dark Theme Components */
   .dark .glass-card {
-    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-2xl;
+    @apply bg-slate-900/80 backdrop-blur-xl border border-white/10 shadow-2xl;
   }
 
   .dark .glass-input {
@@ -82,7 +82,7 @@
 
   /* Light Theme Components */
   .light .glass-card {
-    @apply bg-white/80 backdrop-blur-xl border border-slate-200 shadow-xl;
+    @apply bg-white/95 backdrop-blur-xl border border-slate-200 shadow-xl;
   }
 
   .light .glass-input {

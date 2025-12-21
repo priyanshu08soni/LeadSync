@@ -47,7 +47,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="sticky top-5 mx-4 md:mx-10 backdrop-blur-md dark:text-white text-slate-900 px-6 py-3 flex justify-between items-center shadow-2xl rounded-full dark:bg-slate-900/40 bg-white/80 dark:border-white/10 border-slate-200 z-50">
+    <nav className="fixed top-4 left-4 right-4 md:left-10 md:right-10 backdrop-blur-md dark:text-white text-slate-900 px-6 py-3 flex justify-between items-center shadow-2xl rounded-full dark:bg-slate-900/40 bg-white/80 dark:border-white/10 border-slate-200 z-50">
       {/* Logo + Title */}
       <div className="flex items-center gap-3">
         <img
@@ -72,7 +72,7 @@ function Navbar() {
                 onClick={() => navigate(link.path)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-full transition ${isActive(link.path)
                   ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                  : "hover:bg-white/10 hover:text-white"
+                  : "hover:bg-white/10 hover:text-blue-600"
                   }`}
               >
                 {link.icon}
@@ -95,7 +95,7 @@ function Navbar() {
         )}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-full dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 dark:border-white/10 border-slate-300 transition-all duration-300 dark:text-slate-300 text-slate-700 dark:hover:text-white hover:text-slate-900"
+          className="p-2 rounded-full transition-colors dark:bg-white/10 bg-slate-100 dark:text-yellow-400 text-slate-600 dark:hover:bg-white/20 hover:bg-slate-200"
           title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}

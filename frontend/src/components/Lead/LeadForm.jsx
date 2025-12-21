@@ -15,15 +15,15 @@ export default function LeadForm({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[100] p-4 animate-in fade-in duration-300">
-      <div className="glass-card w-full max-w-2xl rounded-3xl overflow-hidden border border-white/10 shadow-2xl flex flex-col max-h-[95vh]">
+      <div className="glass-card w-full max-w-2xl rounded-3xl overflow-hidden border border-white/10 shadow-2xl flex flex-col max-h-[80vh]">
         {/* Header */}
-        <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/80">
+        <div className="p-6 border-b dark:border-white/5 border-slate-200 flex justify-between items-center dark:bg-slate-900 bg-white">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-xl shadow-lg ${editLead ? "bg-amber-500/20 text-amber-400" : "bg-blue-500/20 text-blue-400"}`}>
               {editLead ? <Send size={24} /> : <Users size={24} />}
             </div>
             <div>
-              <h3 className="text-xl font-extrabold text-slate-50 uppercase tracking-tight">
+              <h3 className="text-xl font-extrabold text-slate-600 uppercase tracking-widest">
                 {editLead ? "Update Lead Details" : "Create New Lead"}
               </h3>
               <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-0.5">Professional Input Suite</p>
@@ -31,7 +31,7 @@ export default function LeadForm({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/5 rounded-xl transition-colors text-slate-500 hover:text-white"
+            className="p-2 hover:bg-white/5 rounded-xl transition-colors text-slate-500 hover:text-red-300"
           >
             <X size={24} />
           </button>
@@ -47,7 +47,7 @@ export default function LeadForm({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">First Name</label>
+                <label className="text-sm font-medium text-slate-500 ml-1">First Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <input
@@ -63,7 +63,7 @@ export default function LeadForm({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">Last Name</label>
+                <label className="text-sm font-medium text-slate-500 ml-1">Last Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <input
@@ -78,7 +78,7 @@ export default function LeadForm({
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">Email Address</label>
+                <label className="text-sm font-medium text-slate-500 ml-1">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <input
@@ -94,7 +94,7 @@ export default function LeadForm({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">Phone Number</label>
+                <label className="text-sm font-medium text-slate-500 ml-1">Phone Number</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <input
@@ -109,7 +109,7 @@ export default function LeadForm({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">Company</label>
+                <label className="text-sm font-medium text-slate-500 ml-1">Company</label>
                 <div className="relative">
                   <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <input
@@ -129,7 +129,7 @@ export default function LeadForm({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">City</label>
+                <label className="text-sm font-medium text-slate-500 ml-1">City</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <input
@@ -144,7 +144,7 @@ export default function LeadForm({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">State / Region</label>
+                <label className="text-sm font-medium text-slate-500 ml-1">State / Region</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <input

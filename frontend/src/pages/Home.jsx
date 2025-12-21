@@ -5,10 +5,10 @@ import { Link } from "react-router-dom";
 
 function Home() {
   return (
-    <div className="relative min-h-screen pb-20">
+    <div className="relative min-h-screen pb-20 bg-slate-950">
       {/* Hero Section */}
       <section
-        className="relative text-center text-white overflow-hidden flex flex-col items-center justify-center min-h-[90vh]"
+        className="relative text-center text-white overflow-hidden flex flex-col items-center justify-center min-h-[100vh]"
       >
         <div
           className="absolute inset-0 z-0 opacity-20 bg-slate-950"
@@ -24,11 +24,11 @@ function Home() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-8">
             <Zap size={14} className="animate-pulse" /> LeadSync Enterprise v2.0
           </div>
-          <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tighter leading-[0.9] uppercase">
+          <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tighter leading-[0.9]  tracking-widest">
             Precision <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400">Pipeline</span>
           </h1>
-          <p className="max-w-2xl mx-auto text-lg md:text-xl mb-12 text-slate-400 font-bold uppercase tracking-wide leading-relaxed">
+          <p className="max-w-2xl mx-auto text-lg md:text-xl mb-12 text-slate-400 font-bold  tracking-widest leading-relaxed">
             The high-performance dashboard for sales teams <br />
             who demand absolute visibility and speed.
           </p>
@@ -52,7 +52,7 @@ function Home() {
 
       {/* Features Section */}
       <section className="grid gap-8 -mt-24 relative z-20 md:grid-cols-3 max-w-6xl mx-auto px-6">
-        <div className="glass-card rounded-3xl p-8 bg-slate-900/80 hover:bg-slate-800/80 transition-all border border-white/10 shadow-2xl group">
+        <div className="backdrop-blur-xl rounded-3xl p-8 bg-slate-900/80 hover:bg-slate-800/80 transition-all border border-white/10 shadow-2xl group">
           <div className="w-14 h-14 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-blue-500/10">
             <BarChart3 size={28} />
           </div>
@@ -63,7 +63,7 @@ function Home() {
           </p>
         </div>
 
-        <div className="glass-card rounded-3xl p-8 bg-slate-900/80 hover:bg-slate-800/80 transition-all border border-white/10 shadow-2xl group">
+        <div className="backdrop-blur-xl rounded-3xl p-8 bg-slate-900/80 hover:bg-slate-800/80 transition-all border border-white/10 shadow-2xl group">
           <div className="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-emerald-500/10">
             <Zap size={28} />
           </div>
@@ -74,7 +74,7 @@ function Home() {
           </p>
         </div>
 
-        <div className="glass-card rounded-3xl p-8 bg-slate-900/80 hover:bg-slate-800/80 transition-all border border-white/10 shadow-2xl group">
+        <div className="backdrop-blur-xl rounded-3xl p-8 bg-slate-900/80 hover:bg-slate-800/80 transition-all border border-white/10 shadow-2xl group">
           <div className="w-14 h-14 bg-purple-500/20 text-purple-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-purple-500/10">
             <ShieldCheck size={28} />
           </div>

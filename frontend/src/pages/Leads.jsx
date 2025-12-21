@@ -192,7 +192,7 @@ export default function Leads() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="p-4 md:p-8 max-w-8xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-700">Leads Overview</h1>
@@ -267,13 +267,13 @@ export default function Leads() {
         </div>
 
         {showFilters && (
-          <div className="glass-card p-6 rounded-2xl space-y-6 animate-in slide-in-from-top-4 duration-300">
+          <div className="glass-card p-6 rounded-2xl space-y-6 animate-in slide-in-from-top-4 duration-300 relative z-40 overflow-visible">
             <div className="flex justify-between items-center border-b border-white/5 pb-4">
               <h3 className="text-lg font-bold text-slate-700 uppercase tracking-wider">Advanced Filters</h3>
               <span className="text-xs font-bold text-slate-500 bg-white/5 px-2 py-1 rounded">PRO FILTERS</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
+              <div className="relative z-40">
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Status</label>
                 <CustomDropdown
                   value={filters.status}
@@ -290,7 +290,7 @@ export default function Leads() {
                 />
               </div>
 
-              <div>
+              <div className="relative z-30">
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Source</label>
                 <CustomDropdown
                   value={filters.source}
@@ -350,7 +350,7 @@ export default function Leads() {
         )}
       </div>
 
-      <div className="glass-card rounded-2xl overflow-hidden">
+      <div className="glass-card rounded-2xl overflow-hidden relative z-10">
         <div className="p-4 border-b border-white/10 flex justify-between items-center">
           <PageSizeSelector limit={limit} onLimitChange={(l) => { setLimit(l); setPage(1); }} />
           <div className="text-sm text-slate-400">Total: {total}</div>

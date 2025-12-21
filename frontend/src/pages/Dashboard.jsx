@@ -130,7 +130,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="p-4 md:p-8 max-w-8xl mx-auto space-y-8 animate-in fade-in duration-500">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
@@ -155,11 +155,11 @@ export default function Dashboard() {
                     </span>
                   </Listbox.Button>
                   <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                    <Listbox.Options className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-xl bg-slate-800 border border-white/10 py-1 shadow-2xl focus:outline-none">
+                    <Listbox.Options className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-xl dark:bg-slate-800 bg-white border dark:border-white/10 border-slate-200 py-1 shadow-2xl focus:outline-none">
                       <Listbox.Option value="" className={({ active }) => `relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? "bg-blue-600/20 text-blue-400" : "text-slate-300"}`}>
                         {({ selected }) => (
                           <>
-                            <span className={`block truncate ${selected ? "font-medium text-white" : "font-normal"}`}>All Teams</span>
+                            <span className={`block truncate ${selected ? "font-medium text-black" : "font-normal"}`}>All Teams</span>
                             {selected && <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-500"><Check size={18} /></span>}
                           </>
                         )}
@@ -168,7 +168,7 @@ export default function Dashboard() {
                         <Listbox.Option key={team._id} value={team.manager._id} className={({ active }) => `relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? "bg-blue-600/20 text-blue-400" : "text-slate-300"}`}>
                           {({ selected }) => (
                             <>
-                              <span className={`block truncate ${selected ? "font-medium text-white" : "font-normal"}`}>{team.manager.name} ({team.name})</span>
+                              <span className={`block truncate ${selected ? "font-medium text-black" : "font-normal"}`}>{team.manager.name} ({team.name})</span>
                               {selected && <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-500"><Check size={18} /></span>}
                             </>
                           )}
