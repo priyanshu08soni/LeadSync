@@ -71,7 +71,7 @@ export default function UsersManagement() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="p-4 md:p-8 max-w-8xl mx-auto space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold dark:text-white text-slate-900 flex items-center gap-3">
