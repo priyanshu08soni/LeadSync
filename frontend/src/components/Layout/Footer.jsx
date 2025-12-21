@@ -13,14 +13,14 @@ function Footer() {
   return (
     <footer className="relative mt-16 mx-4 md:mx-10">
       {/* Main Footer Card */}
-      <div className="backdrop-blur-md bg-slate-900/40 shadow-2xl border border-white/10 rounded-2xl p-8 md:p-10 flex flex-col md:flex-row justify-between items-center gap-8">
+      <div className="backdrop-blur-md bg-slate-900/70 shadow-2xl border border-white/10 rounded-2xl p-8 md:p-10 flex flex-col md:flex-row justify-between items-center gap-8">
         {/* Left Section — Logo + Brand */}
         <div className="flex items-center gap-4">
           <div>
             <h2 className="text-2xl font-black text-white tracking-tight">
               LeadSync CRM
             </h2>
-            <p className="text-sm text-slate-400 font-medium">
+            <p className="text-sm text-slate-300 font-medium">
               Smart Lead Management System
             </p>
           </div>

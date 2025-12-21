@@ -1,5 +1,6 @@
 import React from "react";
 import { X, User, Mail, Phone, Building2, MapPin, Globe, Star, Wallet, Users, Send, Activity } from "lucide-react";
+import CustomDropdown from "../common/CustomDropdown";
 
 export default function LeadForm({
   showForm,
@@ -164,40 +165,38 @@ export default function LeadForm({
 
               <div className="space-y-2">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Source</label>
-                <div className="relative">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <select
-                    name="source"
+                <div className="relative z-30">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 z-10 pointer-events-none" size={18} />
+                  <CustomDropdown
                     value={formData.source}
-                    onChange={onInputChange}
-                    className="glass-input pl-10 w-full appearance-none font-medium"
-                  >
-                    <option value="website" className="bg-slate-900">Website</option>
-                    <option value="facebook_ads" className="bg-slate-900">Facebook Ads</option>
-                    <option value="google_ads" className="bg-slate-900">Google Ads</option>
-                    <option value="referral" className="bg-slate-900">Referral</option>
-                    <option value="events" className="bg-slate-900">Events</option>
-                    <option value="other" className="bg-slate-900">Other</option>
-                  </select>
+                    onChange={(value) => onInputChange({ target: { name: 'source', value } })}
+                    options={[
+                      { value: "website", label: "Website" },
+                      { value: "facebook_ads", label: "Facebook Ads" },
+                      { value: "google_ads", label: "Google Ads" },
+                      { value: "referral", label: "Referral" },
+                      { value: "events", label: "Events" },
+                      { value: "other", label: "Other" }
+                    ]}
+                  />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
-                <div className="relative">
-                  <Activity className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <select
-                    name="status"
+                <div className="relative z-20">
+                  <Activity className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 z-10 pointer-events-none" size={18} />
+                  <CustomDropdown
                     value={formData.status}
-                    onChange={onInputChange}
-                    className="glass-input pl-10 w-full appearance-none font-medium"
-                  >
-                    <option value="new" className="bg-slate-900">New</option>
-                    <option value="contacted" className="bg-slate-900">Contacted</option>
-                    <option value="qualified" className="bg-slate-900">Qualified</option>
-                    <option value="lost" className="bg-slate-900">Lost</option>
-                    <option value="won" className="bg-slate-900">Won</option>
-                  </select>
+                    onChange={(value) => onInputChange({ target: { name: 'status', value } })}
+                    options={[
+                      { value: "new", label: "New" },
+                      { value: "contacted", label: "Contacted" },
+                      { value: "qualified", label: "Qualified" },
+                      { value: "lost", label: "Lost" },
+                      { value: "won", label: "Won" }
+                    ]}
+                  />
                 </div>
               </div>
 
@@ -236,22 +235,20 @@ export default function LeadForm({
 
               <div className="space-y-2 md:col-span-2">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Sales Representative</label>
-                <div className="relative">
-                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <select
-                    name="assigned_to"
+                <div className="relative z-10">
+                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 z-10 pointer-events-none" size={18} />
+                  <CustomDropdown
                     value={formData.assigned_to?._id || formData.assigned_to || ""}
-                    onChange={onInputChange}
-                    className="glass-input pl-10 w-full appearance-none font-medium"
-                    required
-                  >
-                    <option value="" className="bg-slate-900">-- Select Representative --</option>
-                    {salesReps.map((rep) => (
-                      <option key={rep._id} value={rep._id} className="bg-slate-900">
-                        {rep.name} ({rep.email})
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(value) => onInputChange({ target: { name: 'assigned_to', value } })}
+                    options={[
+                      { value: "", label: "-- Select Representative --" },
+                      ...salesReps.map((rep) => ({
+                        value: rep._id,
+                        label: `${rep.name} (${rep.email})`
+                      }))
+                    ]}
+                    placeholder="-- Select Representative --"
+                  />
                 </div>
               </div>
             </div>

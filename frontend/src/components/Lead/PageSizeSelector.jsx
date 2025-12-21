@@ -1,5 +1,6 @@
 import React from "react";
 import { ListFilter } from "lucide-react";
+import CustomDropdown from "../common/CustomDropdown";
 
 export default function PageSizeSelector({ limit, onLimitChange }) {
   return (
@@ -8,15 +9,16 @@ export default function PageSizeSelector({ limit, onLimitChange }) {
         <ListFilter size={14} className="text-slate-600" />
         Records:
       </label>
-      <select
+      <CustomDropdown
         value={limit}
-        onChange={(e) => onLimitChange(Number(e.target.value))}
-        className="bg-slate-950/50 border border-white/5 text-slate-50 rounded-lg px-3 py-1 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/50 appearance-none cursor-pointer hover:bg-slate-900 transition-colors uppercase"
-      >
-        <option value={10} className="bg-slate-900 text-slate-50">10 CNT</option>
-        <option value={20} className="bg-slate-900 text-slate-50">20 CNT</option>
-        <option value={50} className="bg-slate-900 text-slate-50">50 CNT</option>
-      </select>
+        onChange={(value) => onLimitChange(Number(value))}
+        options={[
+          { value: 10, label: "10 CNT" },
+          { value: 20, label: "20 CNT" },
+          { value: 50, label: "50 CNT" }
+        ]}
+        className="min-w-[100px]"
+      />
     </div>
   );
 }

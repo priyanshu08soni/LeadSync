@@ -6,6 +6,7 @@ import LeadDetailsModal from "../components/Lead/LeadDetailsModel";
 import Pagination from "../components/Lead/Pagination";
 import PageHeader from "../components/Lead/PageHeader";
 import PageSizeSelector from "../components/Lead/PageSizeSelector";
+import CustomDropdown from "../components/common/CustomDropdown";
 import { useNotification } from "../contexts/NotificationContext";
 import { AuthContext } from "../contexts/AuthContext";
 import { Search, Filter, X, LayoutGrid, Users, BarChart3, TrendingUp, Loader2 } from "lucide-react";
@@ -194,7 +195,7 @@ export default function Leads() {
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">Leads Overview</h1>
+          <h1 className="text-3xl font-bold text-slate-700">Leads Overview</h1>
           <p className="text-slate-400 mt-1">Manage and track your sales opportunities</p>
         </div>
         <PageHeader onCreateClick={handleCreateClick} />
@@ -206,28 +207,28 @@ export default function Leads() {
           <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400"><Users size={24} /></div>
           <div>
             <p className="text-sm font-medium text-slate-400">Total Leads</p>
-            <p className="text-2xl font-black text-slate-50">{total}</p>
+            <p className="text-2xl font-black text-slate-700">{total}</p>
           </div>
         </div>
         <div className="glass-card rounded-2xl p-6 flex items-center gap-4 bg-slate-900/40">
           <div className="p-3 rounded-xl bg-purple-500/20 text-purple-400"><LayoutGrid size={24} /></div>
           <div>
             <p className="text-sm font-medium text-slate-400">Pages</p>
-            <p className="text-2xl font-black text-slate-50">{page} / {totalPages}</p>
+            <p className="text-2xl font-black text-slate-700">{page} / {totalPages}</p>
           </div>
         </div>
         <div className="glass-card rounded-2xl p-6 flex items-center gap-4 bg-slate-900/40">
           <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-400"><TrendingUp size={24} /></div>
           <div>
             <p className="text-sm font-medium text-slate-400">Current View</p>
-            <p className="text-2xl font-black text-slate-50">{rowData.length}</p>
+            <p className="text-2xl font-black text-slate-700">{rowData.length}</p>
           </div>
         </div>
         <div className="glass-card rounded-2xl p-6 flex items-center gap-4 bg-slate-900/40">
           <div className="p-3 rounded-xl bg-amber-500/20 text-amber-400"><BarChart3 size={24} /></div>
           <div>
             <p className="text-sm font-medium text-slate-400">Limit</p>
-            <p className="text-2xl font-black text-slate-50">{limit}</p>
+            <p className="text-2xl font-black text-slate-700">{limit}</p>
           </div>
         </div>
       </div>
@@ -235,14 +236,14 @@ export default function Leads() {
       {/* Search and Filters */}
       <div className="space-y-4">
         <div className="flex flex-col md:flex-row gap-3">
-          <div className="flex-1 relative">
+          <div className="flex-1 h-full relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search leads by name, email, company..."
-              className="w-full pl-10 glass-input"
+              className="w-full pl-10 glass-input h-full"
             />
           </div>
           <div className="flex gap-2">
@@ -268,39 +269,41 @@ export default function Leads() {
         {showFilters && (
           <div className="glass-card p-6 rounded-2xl space-y-6 animate-in slide-in-from-top-4 duration-300">
             <div className="flex justify-between items-center border-b border-white/5 pb-4">
-              <h3 className="text-lg font-bold text-white uppercase tracking-wider">Advanced Filters</h3>
+              <h3 className="text-lg font-bold text-slate-700 uppercase tracking-wider">Advanced Filters</h3>
               <span className="text-xs font-bold text-slate-500 bg-white/5 px-2 py-1 rounded">PRO FILTERS</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Status</label>
-                <select
+                <CustomDropdown
                   value={filters.status}
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                  className="w-full glass-input appearance-none"
-                >
-                  <option value="" className="bg-slate-900">All Statuses</option>
-                  <option value="new" className="bg-slate-900">New</option>
-                  <option value="contacted" className="bg-slate-900">Contacted</option>
-                  <option value="qualified" className="bg-slate-900">Qualified</option>
-                  <option value="lost" className="bg-slate-900">Lost</option>
-                  <option value="won" className="bg-slate-900">Won</option>
-                </select>
+                  onChange={(value) => setFilters({ ...filters, status: value })}
+                  options={[
+                    { value: "", label: "All Statuses" },
+                    { value: "new", label: "New" },
+                    { value: "contacted", label: "Contacted" },
+                    { value: "qualified", label: "Qualified" },
+                    { value: "lost", label: "Lost" },
+                    { value: "won", label: "Won" }
+                  ]}
+                  placeholder="All Statuses"
+                />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Source</label>
-                <select
+                <CustomDropdown
                   value={filters.source}
-                  onChange={(e) => setFilters({ ...filters, source: e.target.value })}
-                  className="w-full glass-input appearance-none"
-                >
-                  <option value="" className="bg-slate-900">All Sources</option>
-                  <option value="website" className="bg-slate-900">Website</option>
-                  <option value="facebook_ads" className="bg-slate-900">Facebook Ads</option>
-                  <option value="google_ads" className="bg-slate-900">Google Ads</option>
-                  <option value="referral" className="bg-slate-900">Referral</option>
-                </select>
+                  onChange={(value) => setFilters({ ...filters, source: value })}
+                  options={[
+                    { value: "", label: "All Sources" },
+                    { value: "website", label: "Website" },
+                    { value: "facebook_ads", label: "Facebook Ads" },
+                    { value: "google_ads", label: "Google Ads" },
+                    { value: "referral", label: "Referral" }
+                  ]}
+                  placeholder="All Sources"
+                />
               </div>
 
               <div className="space-y-2">

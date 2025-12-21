@@ -74,40 +74,40 @@ export default function UsersManagement() {
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+        <h1 className="text-3xl font-bold dark:text-white text-slate-900 flex items-center gap-3">
           <UserCheck className="text-blue-500" />
           User Management
         </h1>
-        <p className="text-slate-400 mt-1">View all team members and their hierarchies</p>
+        <p className="dark:text-slate-400 text-slate-700 mt-1">View all team members and their hierarchies</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="glass-card rounded-2xl p-6 border-l-4 border-blue-500 group bg-slate-900/60">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-blue-500 group">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Users</p>
-              <h3 className="text-3xl font-extrabold text-slate-50 mt-1">{totalUsers}</h3>
+              <p className="dark:text-slate-400 text-slate-700 text-xs font-bold uppercase tracking-widest">Total Users</p>
+              <h3 className="text-3xl font-extrabold dark:text-slate-50 text-slate-900 mt-1">{totalUsers}</h3>
             </div>
             <div className="bg-blue-500/10 p-3 rounded-2xl text-blue-500 group-hover:scale-110 transition-transform"><Users size={28} /></div>
           </div>
         </div>
 
-        <div className="glass-card rounded-2xl p-6 border-l-4 border-purple-500 group bg-slate-900/60">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-purple-500 group">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Managers</p>
-              <h3 className="text-3xl font-extrabold text-slate-50 mt-1">{totalManagers}</h3>
+              <p className="dark:text-slate-400 text-slate-700 text-xs font-bold uppercase tracking-widest">Managers</p>
+              <h3 className="text-3xl font-extrabold dark:text-slate-50 text-slate-900 mt-1">{totalManagers}</h3>
             </div>
             <div className="bg-purple-500/10 p-3 rounded-2xl text-purple-500 group-hover:scale-110 transition-transform"><Shield size={28} /></div>
           </div>
         </div>
 
-        <div className="glass-card rounded-2xl p-6 border-l-4 border-emerald-500 group bg-slate-900/60">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-emerald-500 group">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Sales Reps</p>
-              <h3 className="text-3xl font-extrabold text-slate-50 mt-1">{totalSalesReps}</h3>
+              <p className="dark:text-slate-400 text-slate-700 text-xs font-bold uppercase tracking-widest">Sales Reps</p>
+              <h3 className="text-3xl font-extrabold dark:text-slate-50 text-slate-900 mt-1">{totalSalesReps}</h3>
             </div>
             <div className="bg-emerald-500/10 p-3 rounded-2xl text-emerald-500 group-hover:scale-110 transition-transform"><Users size={28} /></div>
           </div>
@@ -115,24 +115,24 @@ export default function UsersManagement() {
       </div>
 
       {/* Teams Table */}
-      <div className="glass-card rounded-3xl overflow-hidden border border-white/10 shadow-xl bg-slate-950/40">
+      <div className="glass-card rounded-3xl overflow-hidden dark:border-white/10 border-slate-200 shadow-xl">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="min-w-full">
             <thead>
-              <tr className="bg-slate-900/80 border-b border-white/5">
-                <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">User</th>
-                <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Role</th>
-                <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Team</th>
-                <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Status</th>
-                <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Joined Date</th>
+              <tr className="dark:bg-slate-900/80 bg-slate-100 border-b dark:border-white/5 border-slate-200">
+                <th className="px-6 py-4 text-left text-xs font-black dark:text-slate-400 text-slate-700 uppercase tracking-widest">User</th>
+                <th className="px-6 py-4 text-left text-xs font-black dark:text-slate-400 text-slate-700 uppercase tracking-widest">Role</th>
+                <th className="px-6 py-4 text-left text-xs font-black dark:text-slate-400 text-slate-700 uppercase tracking-widest">Team</th>
+                <th className="px-6 py-4 text-left text-xs font-black dark:text-slate-400 text-slate-700 uppercase tracking-widest">Status</th>
+                <th className="px-6 py-4 text-left text-xs font-black dark:text-slate-400 text-slate-700 uppercase tracking-widest">Joined Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y dark:divide-white/5 divide-slate-200">
               {teams.map((team) => (
                 <React.Fragment key={team._id}>
                   {/* Manager Row */}
                   <tr
-                    className="hover:bg-white/5 transition-colors cursor-pointer group"
+                    className="dark:hover:bg-white/5 hover:bg-slate-50 transition-colors cursor-pointer group"
                     onClick={() => toggleManager(team.manager._id)}
                   >
                     <td className="px-6 py-5 whitespace-nowrap">
@@ -144,8 +144,8 @@ export default function UsersManagement() {
                           {team.manager.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-extrabold text-slate-50">{team.manager.name}</div>
-                          <div className="text-xs font-medium text-slate-400 mt-0.5">{team.manager.email}</div>
+                          <div className="text-sm font-extrabold dark:text-slate-50 text-slate-900">{team.manager.name}</div>
+                          <div className="text-xs font-medium dark:text-slate-400 text-slate-600 mt-0.5">{team.manager.email}</div>
                         </div>
                       </div>
                     </td>
@@ -182,7 +182,7 @@ export default function UsersManagement() {
                             {salesRep.name?.charAt(0).toUpperCase() || 'S'}
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-semibold text-slate-100">{salesRep.name || 'Sales Rep'}</div>
+                            <div className="text-sm font-semibold text-slate-600">{salesRep.name || 'Sales Rep'}</div>
                             <div className="text-xs text-slate-500">{salesRep.email || 'N/A'}</div>
                           </div>
                         </div>

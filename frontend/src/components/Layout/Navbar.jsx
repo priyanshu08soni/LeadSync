@@ -3,11 +3,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import api from "../../api/api";
 import { AuthContext } from "../../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import { useNotification } from "../../contexts/NotificationContext";
-import { Menu, X, Home, BarChart3, Users as UsersIcon, Briefcase } from "lucide-react";
+import { Menu, X, Home, BarChart3, Users as UsersIcon, Briefcase, Sun, Moon } from "lucide-react";
 
 function Navbar() {
   const { user, setUser } = useContext(AuthContext);
+  const { theme, toggleTheme } = useTheme();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,7 +47,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="sticky top-5 mx-4 md:mx-10 backdrop-blur-md text-white px-6 py-3 flex justify-between items-center shadow-2xl rounded-full bg-slate-900/40 border border-white/10 z-50">
+    <nav className="sticky top-5 mx-4 md:mx-10 backdrop-blur-md dark:text-white text-slate-900 px-6 py-3 flex justify-between items-center shadow-2xl rounded-full dark:bg-slate-900/40 bg-white/80 dark:border-white/10 border-slate-200 z-50">
       {/* Logo + Title */}
       <div className="flex items-center gap-3">
         <img
@@ -57,7 +59,7 @@ function Navbar() {
       </div>
 
       {/* Desktop Links */}
-      <ul className="hidden md:flex gap-6 text-sm font-medium text-slate-300">
+      <ul className="hidden md:flex gap-6 text-sm font-medium dark:text-slate-300 text-slate-700">
         {navLinks.map((link) => {
           // Skip admin-only links for non-admin users
           if (link.adminOnly && user?.role !== "admin") {
@@ -69,8 +71,8 @@ function Navbar() {
               <button
                 onClick={() => navigate(link.path)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-full transition ${isActive(link.path)
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                    : "hover:bg-white/10 hover:text-white"
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                  : "hover:bg-white/10 hover:text-white"
                   }`}
               >
                 {link.icon}
@@ -84,13 +86,20 @@ function Navbar() {
       {/* User Info & Logout */}
       <div className="hidden md:flex items-center gap-4">
         {user && (
-          <div className="flex items-center gap-2 text-sm text-slate-300">
+          <div className="flex items-center gap-2 text-sm dark:text-slate-300 text-slate-700">
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
               {user.name?.charAt(0).toUpperCase()}
             </div>
             <span className="hidden lg:block">{user.name}</span>
           </div>
         )}
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-full dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 dark:border-white/10 border-slate-300 transition-all duration-300 dark:text-slate-300 text-slate-700 dark:hover:text-white hover:text-slate-900"
+          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
         <button
           onClick={handleLogout}
           className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600 transition"
@@ -108,7 +117,7 @@ function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 mx-4 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-4 md:hidden">
+        <div className="absolute top-full left-0 right-0 mt-2 mx-4 dark:bg-slate-900/95 bg-white/95 backdrop-blur-xl dark:border-white/10 border-slate-200 rounded-2xl shadow-2xl p-4 md:hidden">
           <ul className="space-y-2">
             {navLinks.map((link) => {
               if (link.adminOnly && user?.role !== "admin") {
@@ -123,8 +132,8 @@ function Navbar() {
                       setMobileMenuOpen(false);
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition ${isActive(link.path)
-                        ? "bg-blue-600 text-white"
-                        : "text-slate-300 hover:bg-white/5"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-300 hover:bg-white/5"
                       }`}
                   >
                     {link.icon}
@@ -148,6 +157,14 @@ function Navbar() {
               </div>
             </div>
           )}
+
+          <button
+            onClick={toggleTheme}
+            className="w-full mt-4 flex items-center justify-center gap-2 dark:bg-white/5 bg-slate-100 dark:hover:bg-white/10 hover:bg-slate-200 dark:border-white/10 border-slate-300 dark:text-white text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition"
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          </button>
 
           <button
             onClick={() => {

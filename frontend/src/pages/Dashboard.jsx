@@ -134,11 +134,11 @@ export default function Dashboard() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+          <h1 className="text-3xl font-bold dark:text-white text-slate-900 flex items-center gap-3">
             <LayoutDashboard className="text-blue-500" />
             Dashboard
           </h1>
-          <p className="text-slate-400 mt-1">Overview of your sales pipeline and team performance</p>
+          <p className="dark:text-slate-400 text-slate-700 mt-1">Overview of your sales pipeline and team performance</p>
         </div>
 
         {currentUser.role === "admin" && (
@@ -185,41 +185,41 @@ export default function Dashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="glass-card rounded-2xl p-6 border-l-4 border-blue-500 group hover:translate-y-[-4px] transition-all duration-300 bg-slate-900/60">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-blue-500 group hover:translate-y-[-4px] transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Leads</p>
-              <h3 className="text-4xl font-extrabold text-slate-50 mt-1">{stats.totalLeads}</h3>
+              <p className="dark:text-slate-400 text-slate-700 text-xs font-bold uppercase tracking-widest">Total Leads</p>
+              <h3 className="text-4xl font-extrabold dark:text-slate-50 text-slate-900 mt-1">{stats.totalLeads}</h3>
             </div>
             <div className="bg-blue-500/20 p-3 rounded-2xl text-blue-400 group-hover:scale-110 transition-transform"><Users size={28} /></div>
           </div>
         </div>
 
-        <div className="glass-card rounded-2xl p-6 border-l-4 border-emerald-500 group hover:translate-y-[-4px] transition-all duration-300 bg-slate-900/60">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-emerald-500 group hover:translate-y-[-4px] transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Conversion Rate</p>
-              <h3 className="text-4xl font-extrabold text-slate-50 mt-1">{stats.conversionRate.toFixed(1)}%</h3>
+              <p className="dark:text-slate-400 text-slate-700 text-xs font-bold uppercase tracking-widest">Conversion Rate</p>
+              <h3 className="text-4xl font-extrabold dark:text-slate-50 text-slate-900 mt-1">{stats.conversionRate.toFixed(1)}%</h3>
             </div>
             <div className="bg-emerald-500/20 p-3 rounded-2xl text-emerald-400 group-hover:scale-110 transition-transform"><TrendingUp size={28} /></div>
           </div>
         </div>
 
-        <div className="glass-card rounded-2xl p-6 border-l-4 border-purple-500 group hover:translate-y-[-4px] transition-all duration-300 bg-slate-900/60">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-purple-500 group hover:translate-y-[-4px] transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Avg Lead Value</p>
-              <h3 className="text-4xl font-extrabold text-slate-50 mt-1">${stats.avgLeadValue.toFixed(0)}</h3>
+              <p className="dark:text-slate-400 text-slate-700 text-xs font-bold uppercase tracking-widest">Avg Lead Value</p>
+              <h3 className="text-4xl font-extrabold dark:text-slate-50 text-slate-900 mt-1">${stats.avgLeadValue.toFixed(0)}</h3>
             </div>
             <div className="bg-purple-500/20 p-3 rounded-2xl text-purple-400 group-hover:scale-110 transition-transform"><DollarSign size={28} /></div>
           </div>
         </div>
 
-        <div className="glass-card rounded-2xl p-6 border-l-4 border-amber-500 group hover:translate-y-[-4px] transition-all duration-300 bg-slate-900/60">
+        <div className="glass-card rounded-2xl p-6 border-l-4 border-amber-500 group hover:translate-y-[-4px] transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Won Deals</p>
-              <h3 className="text-4xl font-extrabold text-slate-50 mt-1">{stats.leadsByStatus.find((s) => s._id === "won")?.count || 0}</h3>
+              <p className="dark:text-slate-400 text-slate-700 text-xs font-bold uppercase tracking-widest">Won Deals</p>
+              <h3 className="text-4xl font-extrabold dark:text-slate-50 text-slate-900 mt-1">{stats.leadsByStatus.find((s) => s._id === "won")?.count || 0}</h3>
             </div>
             <div className="bg-amber-500/20 p-3 rounded-2xl text-amber-400 group-hover:scale-110 transition-transform"><Award size={28} /></div>
           </div>
@@ -229,7 +229,7 @@ export default function Dashboard() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="glass-card rounded-2xl p-6">
-          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <h3 className="text-xl font-bold dark:text-white text-slate-900 mb-6 flex items-center gap-2">
             <Target className="text-blue-500" />
             Lead Status Distribution
           </h3>
