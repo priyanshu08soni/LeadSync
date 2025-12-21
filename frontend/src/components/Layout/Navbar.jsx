@@ -53,7 +53,7 @@ function Navbar() {
         <img
           src={logo}
           alt="Logo"
-          className="h-10 cursor-pointer"
+          className="h-10 cursor-pointer rounded-full"
           onClick={() => navigate("/")}
         />
       </div>

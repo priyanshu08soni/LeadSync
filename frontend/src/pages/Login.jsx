@@ -3,7 +3,9 @@ import api from "../api/api";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { useNotification } from "../contexts/NotificationContext";
-import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
+import { Mail, Lock, Loader2 } from "lucide-react";
+
+import logo from "../assets/logo.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -29,14 +31,14 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-center min-h-screen px-4 py-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 glass-card rounded-2xl p-8 animate-in fade-in zoom-in duration-500">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600/20 mb-4 shadow-xl">
-            <LogIn className="text-blue-400" size={32} />
+          <div className="flex justify-center mb-6">
+            <img src={logo} alt="LeadSync Logo" className="h-16 w-auto rounded-full" />
           </div>
-          <h2 className="text-4xl font-extrabold tracking-tight dark:text-slate-50 text-slate-900 mb-2 uppercase">Welcome Back</h2>
-          <p className="dark:text-slate-500 text-slate-600 text-xs font-bold uppercase tracking-widest">Enterprise Pipeline Suite</p>
+          <h2 className="text-4xl font-extrabold tracking-widest dark:text-slate-50 text-slate-900 mb-2 ">Welcome Back</h2>
+          <p className="dark:text-slate-500 text-slate-600 text-sm font-bold tracking-widest">Enterprise Pipeline Suite</p>
         </div>
 
         <form onSubmit={submit} className="mt-8 space-y-6">
